@@ -16,6 +16,7 @@ typedef enum {PinDirectionInput, PinDirectionOutput} PinDirections;
 
 
 void GPIO_EnablePort(GPIO_TypeDef *Port);
+void GPIO_DisablePort(GPIO_TypeDef *Port);
 
 void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinDirections PinDirection);
 

@@ -11,8 +11,11 @@ int main(void) {
     for (volatile int i = 0; i < 500000; i++);
     GPIO_TogglePin(GPIOD, PIN_04);
 
+    //cleanup. Set anything as untouched
+    GPIO_DisablePort(GPIOD);
+
     //Set Vector Table
-    SCB->VTOR = &FLASH_APP1_OFFSET;
+    SCB->VTOR = (uint32_t)&FLASH_APP1_OFFSET;
 
     //Run Application's ResetHandler
     void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*) (&FLASH_APP1_OFFSET + 4U)));

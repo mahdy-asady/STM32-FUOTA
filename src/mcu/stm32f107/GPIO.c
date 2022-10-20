@@ -2,26 +2,35 @@
 #include "GPIO.h"
 #include "stm32f107xc.h"
 
-
-void GPIO_EnablePort(GPIO_TypeDef *Port) {
+uint32_t RCC_SelectMask(GPIO_TypeDef *Port) {
+    uint32_t Mask = 0;
     uint32_t PortAddress = (uint32_t)Port;
     switch(PortAddress) {
         case GPIOA_BASE:
-            RCC->APB2ENR |=RCC_APB2ENR_IOPAEN;
+            Mask = RCC_APB2ENR_IOPAEN;
             break;
         case GPIOB_BASE:
-            RCC->APB2ENR |=RCC_APB2ENR_IOPBEN;
+            Mask = RCC_APB2ENR_IOPBEN;
             break;
         case GPIOC_BASE:
-            RCC->APB2ENR |=RCC_APB2ENR_IOPCEN;
+            Mask = RCC_APB2ENR_IOPCEN;
             break;
         case GPIOD_BASE:
-            RCC->APB2ENR |=RCC_APB2ENR_IOPDEN;
+            Mask = RCC_APB2ENR_IOPDEN;
             break;
         case GPIOE_BASE:
-            RCC->APB2ENR |=RCC_APB2ENR_IOPEEN;
+            Mask = RCC_APB2ENR_IOPEEN;
             break;
     }
+    return Mask;
+}
+
+void GPIO_EnablePort(GPIO_TypeDef *Port) {
+    RCC->APB2ENR |= RCC_SelectMask(Port);
+}
+
+void GPIO_DisablePort(GPIO_TypeDef *Port) {
+    RCC->APB2ENR &= ~RCC_SelectMask(Port);
 }
 
 void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinDirections PinDirection){
