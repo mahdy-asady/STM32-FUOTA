@@ -1,0 +1,15 @@
+{
+    "cmake.configureSettings": {
+        "BUILD": "debug", /*release OR debug*/
+        "PROJECT": "bootLoader",
+        "PROFILE": "stm32f107_72MHz_STLINK",
+
+        "stm32f107_72MHz_JFLASH": ["STM32F107xC", "72000000", "cortex-m3", "j-link"],
+        "stm32f107_72MHz_STLINK": ["STM32F107xC", "72000000", "cortex-m3", "st-link"]
+    },
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "*.c": "c",
+        "*.h": "c"
+    }
+}

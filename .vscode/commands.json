@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "command": "workbench.action.tasks.build",
+      "text": "Build",
+      "tooltip": "Build the project",
+      "color": "#FFCC00"
+    },
+    {
+      "command": "workbench.action.tasks.runTask",
+      "arguments": ["CMake: flash"],
+      "text": "Flash",
+      "tooltip": "Flash To uc",
+      "color": "#FFCC00"
+    }
+  ]
+}
