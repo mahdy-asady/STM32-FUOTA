@@ -13,11 +13,6 @@ set(PREFIX arm-none-eabi-)
 set(CTUNING   "-fno-builtin -ffunction-sections -fdata-sections")
 set(CMCU      "-mcpu=${MCU} -mthumb -DUSE_HAL_DRIVER")
 
-set( FLASH_BOOT_OFFSET 0x8000000 )
-set( FLASH_DATA_OFFSET 0x8001000 )
-set( FLASH_APP1_OFFSET 0x8001800 )
-set( FLASH_APP2_OFFSET 0x8020C00 )
-
 if( BUILD STREQUAL "release")
 
     set(CDEBUG    "-fanalyzer -DLOG_LEVEL=0")
@@ -33,15 +28,11 @@ endif()
 if(PROJECT STREQUAL "bootloader")
 
     set( LINKER_SCRIPT "STM32F107VCTx_FLASH_BOOTLOADER.ld")
-    set( Flash_ADDR ${FLASH_BOOT_OFFSET} )
-
-    add_compile_definitions( FLASH_DATA_OFFSET=${FLASH_DATA_OFFSET} )
-    add_compile_definitions( FLASH_APP1_OFFSET=${FLASH_APP1_OFFSET} )
-    add_compile_definitions( FLASH_APP2_OFFSET=${FLASH_APP2_OFFSET} )
+    set( Flash_ADDR "0x8000000" )
 
 else()
     set( LINKER_SCRIPT "STM32F107VCTx_FLASH_APPLICATION.ld")
-    set( Flash_ADDR ${FLASH_APP1_OFFSET} )
+    set( Flash_ADDR "0x8001800" )
 
 endif()
 
