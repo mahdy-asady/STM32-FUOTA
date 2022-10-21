@@ -58,11 +58,15 @@ _estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
 _Min_Heap_Size = 0x200;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
+FLASH_DATA_OFFSET = 0x8001000;
+FLASH_APP1_OFFSET = 0x8001800;
+FLASH_APP2_OFFSET = 0x8020C00;
+
 /* Specify the memory areas */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 64K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 256K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 4K
 }
 
 /* Define output sections */
