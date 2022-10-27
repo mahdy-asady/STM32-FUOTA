@@ -33,7 +33,7 @@ void BootApplication(void) {
 
 void ShowBootloaderSign(void) {
     GPIO_EnablePort(GPIOD);
-    GPIO_InitPin(GPIOD, PIN_04, PinDirectionOutput);
+    GPIO_InitPin(GPIOD, PIN_04, PinOperationOutputPushPull);
 
     for(int i = 0; i < 5; i++) {
         GPIO_TogglePin(GPIOD, PIN_04);

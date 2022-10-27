@@ -10,7 +10,17 @@ typedef enum {
 
 typedef enum {PinLow, PinHigh} PinValues;
 
-typedef enum {PinDirectionInput, PinDirectionOutput} PinDirections;
+typedef enum {
+    PinOperationAnalog,
+
+    PinOperationInputFloating,
+    PinOperationInputPullUpDown,
+
+    PinOperationOutputPushPull,
+    PinOperationOutputOpen,
+    PinOperationOutputAlternatePushPull,
+    PinOperationOutputAlternateOpen
+} PinOperations;
 
 
 
@@ -18,7 +28,7 @@ typedef enum {PinDirectionInput, PinDirectionOutput} PinDirections;
 void GPIO_EnablePort(GPIO_TypeDef *Port);
 void GPIO_DisablePort(GPIO_TypeDef *Port);
 
-void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinDirections PinDirection);
+void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinOperations PinOperation);
 
 void GPIO_WritePin(GPIO_TypeDef *Port, PINS PinNumber, PinValues PinValue);
 
