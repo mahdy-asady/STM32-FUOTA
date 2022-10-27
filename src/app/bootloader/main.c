@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "stm32f107xc.h"
 #include "GPIO.h"
+#include "USART.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -10,6 +11,11 @@ void ShowBootloaderSign(void);
 int main(void) {
 
     ShowBootloaderSign();
+
+    USART_EnableUSART1();
+    
+    char *Text = "Boot loader Started!!\r\n";
+    USART_SendString(USART1, Text);
 
     BootApplication();
 
