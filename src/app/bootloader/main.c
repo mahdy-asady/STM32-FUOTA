@@ -7,19 +7,32 @@ extern char FLASH_APP1_OFFSET;
 
 void BootApplication(void);
 void ShowBootloaderSign(void);
+void GetEsp32Data(char Data);
 
 int main(void) {
 
     ShowBootloaderSign();
 
     USART_EnableUSART1();
+
+    USART_EnableUSART2();
+    USART_FetchUSART2(&GetEsp32Data);
     
     char *Text = "Boot loader Started!!\r\n";
     USART_SendString(USART1, Text);
 
-    BootApplication();
+    char *Text2 = "AT+RST\r\n";
+    USART_SendString(USART2, Text2);
+
+
+    //BootApplication();
 
     while(1);
+}
+
+void GetEsp32Data(char Data) {
+    char txt[2] = { Data, 0};
+    USART_SendString(USART1, txt);
 }
 
 /*
