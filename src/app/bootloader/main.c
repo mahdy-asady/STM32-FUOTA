@@ -7,7 +7,7 @@ extern char FLASH_APP1_OFFSET;
 
 void BootApplication(void);
 void ShowBootloaderSign(void);
-void GetEsp32Data(char Data);
+void GetEsp32Data(char *Data);
 
 int main(void) {
 
@@ -30,9 +30,8 @@ int main(void) {
     while(1);
 }
 
-void GetEsp32Data(char Data) {
-    char txt[2] = { Data, 0};
-    USART_SendString(USART1, txt);
+void GetEsp32Data(char *Data) {
+    USART_SendString(USART1, Data);
 }
 
 /*

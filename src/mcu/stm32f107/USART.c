@@ -1,8 +1,10 @@
 #include "stm32f107xc.h"
 #include "GPIO.h"
 
-void (*USART1CallBack)(char);
-void (*USART2CallBack)(char);
+#define USART_BUFFER_SIZE 100
+
+void (*USART1CallBack)(char*);
+void (*USART2CallBack)(char*);
 
 void USART_EnableUSART1(void) {
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
@@ -16,7 +18,7 @@ void USART_EnableUSART1(void) {
     USART1->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 }
 
-void USART_FetchUSART1(void (*CallBack)(char)) {
+void USART_FetchUSART1(void (*CallBack)(char*)) {
     USART1CallBack = CallBack;
     __NVIC_EnableIRQ(USART1_IRQn);
     USART1->CR1 |= USART_CR1_RXNEIE;
@@ -37,7 +39,7 @@ void USART_EnableUSART2(void) {
     USART2->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 }
 
-void USART_FetchUSART2(void (*CallBack)(char)) {
+void USART_FetchUSART2(void (*CallBack)(char*)) {
     USART2CallBack = CallBack;
     __NVIC_EnableIRQ(USART2_IRQn);
     USART2->CR1 |= USART_CR1_RXNEIE;
@@ -46,20 +48,29 @@ void USART_FetchUSART2(void (*CallBack)(char)) {
 
 void USART_SendString(USART_TypeDef *USART, char *Text) {
     while(*Text != 0) {
-        while(!(USART->SR & USART_SR_TC));
+        while(!(USART->SR & USART_SR_TXE));
         USART->DR = *Text;
         Text++;
     }
 }
 
+void ReceiveData(USART_TypeDef *USART, char buffer[USART_BUFFER_SIZE]) {
+    int i = 0;
+    while(USART->SR & USART_SR_RXNE) {
+        buffer[i++] = (char)((uint8_t)(USART->DR) & 0x7F);
+    }
+    buffer[i] = 0;
+}
 
 void USART1_IRQHandler (void) {
-    char Data = (char)((uint8_t)(USART1->DR) & 0x7F);
+    char Data[USART_BUFFER_SIZE];
+    ReceiveData(USART1, Data);
     USART1CallBack(Data);
 }
 
 
 void USART2_IRQHandler (void) {
-    char Data = (char)((uint8_t)(USART2->DR) & 0x7F);
+    char Data[USART_BUFFER_SIZE];
+    ReceiveData(USART2, Data);
     USART2CallBack(Data);
 }
