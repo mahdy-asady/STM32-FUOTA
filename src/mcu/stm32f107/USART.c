@@ -24,10 +24,8 @@ void USART_FetchUSART1(void (*CallBack)(char)) {
 
 void USART_SendString(USART_TypeDef *USART, char *Text) {
     while(*Text != 0) {
-        USART1->CR1 |= USART_CR1_TE;
-        
-        USART1->DR = *Text;
-        while(!(USART1->SR & USART_SR_TXE));
+        while(!(USART->SR & USART_SR_TC));
+        USART->DR = *Text;
         Text++;
     }
 }
