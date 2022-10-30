@@ -1,76 +1,165 @@
 #include "stm32f107xc.h"
 #include "GPIO.h"
+#include "USART.h"
+#include "util.h"
 
-#define USART_BUFFER_SIZE 100
+#define DEBUG_TO_USART
 
-void (*USART1CallBack)(char*);
-void (*USART2CallBack)(char*);
+USART_Handle *UHandles[2];
 
-void USART_EnableUSART1(void) {
+
+/*
+    USART_Init
+*/
+void USART_Init(USART_Handle *USART) {
+    //Initiate RX Buffer
+    USART->Buffer.Start = USART->Buffer.End = (char*)&USART->Buffer.Content;
+
+    // Enable Alternate Function Clock
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 
-    GPIO_EnablePort(GPIOA);
-    GPIO_InitPin(GPIOA, PIN_09, PinOperationOutputAlternatePushPull);
-    GPIO_InitPin(GPIOA, PIN_10, PinOperationInputPullUpDown);
+    //Some configs based on USART Selection
+    uint32_t USARTAddress = (uint32_t)USART->Instance;
+    switch (USARTAddress)
+    {
+    case USART1_BASE:
+        RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+
+        if(!USART->isPortMapped) {
+            GPIO_EnablePort(GPIOA);
+            GPIO_InitPin(GPIOA, PIN_09, PinOperationOutputAlternatePushPull);
+            GPIO_InitPin(GPIOA, PIN_10, PinOperationInputPullUpDown);
+        }
+        else {
+            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;
+            //...
+        }
+
+        __NVIC_EnableIRQ(USART1_IRQn);
+        UHandles[0] = USART;
+        break;
+    case USART2_BASE:
+        RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
+        if(!USART->isPortMapped) {
+        }
+        else {
+            AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;
+
+            GPIO_EnablePort(GPIOD);
+            GPIO_InitPin(GPIOD, PIN_05, PinOperationOutputAlternatePushPull);
+            GPIO_InitPin(GPIOD, PIN_06, PinOperationInputPullUpDown);
+        }
+
+        __NVIC_EnableIRQ(USART2_IRQn);
+        UHandles[1] = USART;
+        break;
+    }
     
-    USART1->BRR = 40 << 4; // Baud rate = 72Mhz/(16 * __40__) = 112500
-    USART1->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
+    USART->Instance->BRR = USART->BaudRate; // Baud rate = Clock(Mhz)/(16 * __XXX__)
+    //Enable USART, RX, TX, TX Interrupt
+    USART->Instance->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE | USART_CR1_RXNEIE;
 }
 
-void USART_FetchUSART1(void (*CallBack)(char*)) {
-    USART1CallBack = CallBack;
-    __NVIC_EnableIRQ(USART1_IRQn);
-    USART1->CR1 |= USART_CR1_RXNEIE;
-}
-
-
-void USART_EnableUSART2(void) {
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
-
-    AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;
-
-    GPIO_EnablePort(GPIOD);
-    GPIO_InitPin(GPIOD, PIN_05, PinOperationOutputAlternatePushPull);
-    GPIO_InitPin(GPIOD, PIN_06, PinOperationInputPullUpDown);
-    
-    USART2->BRR = 20 << 4; // Baud rate = 36Mhz/(16 * __20__) = 112500
-    USART2->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
-}
-
-void USART_FetchUSART2(void (*CallBack)(char*)) {
-    USART2CallBack = CallBack;
-    __NVIC_EnableIRQ(USART2_IRQn);
-    USART2->CR1 |= USART_CR1_RXNEIE;
-}
-
-
-void USART_SendString(USART_TypeDef *USART, char *Text) {
+/*
+    USART_SendString
+*/
+void USART_SendString(USART_Handle *USART, char *Text) {
     while(*Text != 0) {
-        while(!(USART->SR & USART_SR_TXE));
-        USART->DR = *Text;
+        while(!(USART->Instance->SR & USART_SR_TXE));
+        USART->Instance->DR = *Text;
         Text++;
     }
 }
 
-void ReceiveData(USART_TypeDef *USART, char buffer[USART_BUFFER_SIZE]) {
-    int i = 0;
-    while(USART->SR & USART_SR_RXNE) {
-        buffer[i++] = (char)((uint8_t)(USART->DR) & 0x7F);
+/*
+    USART_WriteLine
+*/
+void USART_WriteLine(USART_Handle *USART, char *Text) {
+    USART_SendString(USART, Text);
+    USART_SendString(USART, "\r\n");
+}
+
+/*
+    USART_ReadLine
+*/
+int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSize){
+    uint8_t StringPos = 0;
+    char CurrentChar = 0;
+    int Retry = 0;
+    do{
+        if(USART->Buffer.Start == USART->Buffer.End){ //Buffer Empty, wait for incomming
+            if(Retry > 5){
+                ReturnString[StringPos - 1] = 0;
+                return 0;
+            }
+            else {
+                _delay_ms(500);
+                Retry++;
+                continue;
+            }
+        }
+        Retry = 0;
+        CurrentChar = *(USART->Buffer.Start++);
+        ReturnString[StringPos++] = CurrentChar;
+        if(USART->Buffer.Start == (USART->Buffer.Content + USART_BUFFER_SIZE))
+            USART->Buffer.Start = USART->Buffer.Content;
+
+    }while(CurrentChar != '\n' && StringPos < ReturnMaxSize); // got \n or ReturnStriing full
+    /*
+        TODO: In Case of ReturnString full we will miss a character!!
+    */
+
+    //remove trailing \r\n
+    ReturnString[StringPos - 1] = 0;
+    if(ReturnString[StringPos-2] == '\r')
+        ReturnString[StringPos - 2] = 0;
+    return 1;
+}
+
+/*
+    ReceiveData
+*/
+void ReceiveData(USART_Handle *USART) {
+    while(USART->Instance->SR & USART_SR_RXNE) {
+        char *NewEnd;
+        if(USART->Buffer.End == (USART->Buffer.Content + USART_BUFFER_SIZE - 1)) {
+            NewEnd = USART->Buffer.Content;
+        }
+        else {
+            NewEnd = USART->Buffer.End + 1;
+        }
+
+        if(NewEnd == USART->Buffer.Start) {
+            //Buffer overflow
+            return;
+        }
+        char Char = (char)((uint8_t)(USART->Instance->DR) & 0x7F);
+        *(USART->Buffer.End) = Char;
+        USART->Buffer.End = NewEnd;
+
+
+
+        #ifdef DEBUG_TO_USART
+        char DebugChar[2] = {Char, 0};
+        USART_SendString(UHandles[0], DebugChar);
+        #endif
     }
-    buffer[i] = 0;
 }
 
+
+/************************************************************/
+
+/*
+    USART1_IRQHandler
+*/
 void USART1_IRQHandler (void) {
-    char Data[USART_BUFFER_SIZE];
-    ReceiveData(USART1, Data);
-    USART1CallBack(Data);
+    ReceiveData(UHandles[0]);
 }
 
-
+/*
+    USART2_IRQHandler
+*/
 void USART2_IRQHandler (void) {
-    char Data[USART_BUFFER_SIZE];
-    ReceiveData(USART2, Data);
-    USART2CallBack(Data);
+    ReceiveData(UHandles[1]);
 }

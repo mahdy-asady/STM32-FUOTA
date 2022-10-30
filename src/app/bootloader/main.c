@@ -2,36 +2,37 @@
 #include "stm32f107xc.h"
 #include "GPIO.h"
 #include "USART.h"
+#include "ESP-AT.h"
 
 extern char FLASH_APP1_OFFSET;
 
 void BootApplication(void);
 void ShowBootloaderSign(void);
-void GetEsp32Data(char *Data);
 
 int main(void) {
 
     ShowBootloaderSign();
 
-    USART_EnableUSART1();
-
-    USART_EnableUSART2();
-    USART_FetchUSART2(&GetEsp32Data);
+    USART_Handle USART1_Handle;
+    USART1_Handle.Instance = USART1;
+    USART1_Handle.BaudRate = 40 << 4;
+    USART1_Handle.isPortMapped = 0;
+    USART_Init(&USART1_Handle);
     
-    char *Text = "Boot loader Started!!\r\n";
-    USART_SendString(USART1, Text);
 
-    char *Text2 = "AT+RST\r\n";
-    USART_SendString(USART2, Text2);
+    USART_Handle USART2_Handle;
+    USART2_Handle.Instance = USART2;
+    USART2_Handle.BaudRate = 20 << 4;
+    USART2_Handle.isPortMapped = 1;
+    USART_Init(&USART2_Handle);
+    
+    USART_WriteLine(&USART1_Handle, "Boot loader Started!");
+
 
 
     //BootApplication();
 
     while(1);
-}
-
-void GetEsp32Data(char *Data) {
-    USART_SendString(USART1, Data);
 }
 
 /*

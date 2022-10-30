@@ -3,16 +3,30 @@
 
 #include "stm32f107xc.h"
 
+#define USART_BUFFER_SIZE 200
 
-//USART 1
-void USART_EnableUSART1(void);
-void USART_FetchUSART1(void (*CallBack)(char*));
+typedef struct __USART_Buffer {
+    char            Content[USART_BUFFER_SIZE];
+    char           *Start;
+    char           *End;
+} USART_Buffer;
 
-//USART 2
-void USART_EnableUSART2(void);
-void USART_FetchUSART2(void (*CallBack)(char*));
+typedef struct __USART_Handle {
+    USART_TypeDef  *Instance;
+    int             isPortMapped;
+    uint32_t        BaudRate;
+    USART_Buffer    Buffer;
+
+} USART_Handle;
 
 
-void USART_SendString(USART_TypeDef*, char*);
+void USART_Init(USART_Handle *);
+
+
+void USART_SendString(USART_Handle*, char*);
+
+void USART_WriteLine(USART_Handle*, char*);
+
+int USART_ReadLine(USART_Handle*, char*, uint8_t);
 
 #endif
