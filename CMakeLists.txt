@@ -89,6 +89,7 @@ add_custom_target(flash st-flash write ${PROJECT_NAME}.bin ${Flash_ADDR} && st-f
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC "src/mcu/stm32f107")
+target_include_directories(${PROJECT_NAME} PUBLIC "src/shared")
 target_include_directories(${PROJECT_NAME} PUBLIC "src/mcu/stm32f107/CMSIS/Include")
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")

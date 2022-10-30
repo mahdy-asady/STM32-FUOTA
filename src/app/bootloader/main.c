@@ -28,7 +28,8 @@ int main(void) {
     
     USART_WriteLine(&USART1_Handle, "Boot loader Started!");
 
-
+    ESP_Init(&USART2_Handle, &USART1_Handle);
+    ESP_WifiConnect("Redmi", "00000000");
 
     //BootApplication();
 
