@@ -5,13 +5,14 @@
 
 USART_Handle *Connection, *Echo;
 
-int SendCommandAndWait(char *cmd, uint32_t delay) {
+int SendCommandAndWait(char *cmd, uint32_t Delay) {
     USART_WriteLine(Connection, cmd);
-    _delay_ms(delay);
     
     char strBuffer[100];
     int Result = 0;
-    for(int i = 0; i< 10; i++)
+
+    DelaySet(Delay);
+    while (!DelayCatched())
     {
         Result = USART_ReadLine(Connection, strBuffer, 100);
         if(!Result || strcmp(strBuffer, "ERROR") == 0)
