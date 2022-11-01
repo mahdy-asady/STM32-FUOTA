@@ -3,6 +3,7 @@
 #include "GPIO.h"
 #include "USART.h"
 #include "ESP-AT.h"
+#include "debug.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -26,7 +27,8 @@ int main(void) {
     USART2_Handle.isPortMapped = 1;
     USART_Init(&USART2_Handle);
     
-    USART_WriteLine(&USART1_Handle, "Boot loader Started!");
+    log_info(&USART1_Handle, "Boot loader Started!");
+    
 
     ESP_Init(&USART2_Handle, &USART1_Handle);
     ESP_WifiConnect("Redmi", "00000000");

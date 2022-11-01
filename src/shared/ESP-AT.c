@@ -2,6 +2,7 @@
 //#include <stdio.h>
 #include "USART.h"
 #include "delay.h"
+#include "debug.h"
 
 USART_Handle *Connection, *Echo;
 
@@ -30,25 +31,25 @@ void ESP_Init(USART_Handle *ESP_Connection, USART_Handle *Echo_Connection) {
     Connection = ESP_Connection;
     Echo = Echo_Connection;
 
-    USART_WriteLine(Echo, "Initialize ESP-AT ...");
+    log_info(Echo, "Initialize ESP-AT ...");
 
     if(!SendCommand("AT"))
-        USART_WriteLine(Echo, "ESP-AT Initialization failed!!!");
+        log_info(Echo, "ESP-AT Initialization failed!!!");
 
     SendCommand("ATE0");
 }
 
 int ESP_WifiConnect(char *SSID, char *Password) {
-    USART_WriteLine(Echo, "Set station Mode ...");
+    log_info(Echo, "Set station Mode ...");
     SendCommand("AT+CWMODE=1");//Set mode to wifi station
     
-    USART_WriteLine(Echo, "Connect to Access point ...");
+    log_info(Echo, "Connect to Access point ...");
     char ConnectionString[100] = "AT+CWJAP=\"Redmi\",\"00000000\"";
     //snprintf(ConnectionString, 100, "AT+CWJAP=\"%s\",\"%s\"", SSID, Password);
     if(!SendCommandAndWait(ConnectionString, 1000))
-        USART_WriteLine(Echo, "Access Point Connection failed!!!");
+        log_info(Echo, "Access Point Connection failed!!!");
     else
-        USART_WriteLine(Echo, "Access Point Connected!!!");
+        log_info(Echo, "Access Point Connected!!!");
 
     return 1;
 }

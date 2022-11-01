@@ -2,6 +2,7 @@
     "cmake.configureSettings": {
         "BUILD": "debug", /*release OR debug*/
         "PROJECT": "bootloader",
+        "LOG_LEVEL": 4,
 
         "PROCESSOR": "STM32F107xC",
         "F_CPU": "72000000",
