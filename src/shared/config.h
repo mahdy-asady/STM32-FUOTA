@@ -1,0 +1,10 @@
+#ifndef __CONFIG_H_
+#define __CONFIG_H_
+
+#define WAIT_AFTER_EMPTY_BUFFER 100
+
+#define DEFAULT_RESPONSE_DELAY 200
+
+#define AP_CONNECTION_DELAY 1000
+
+#endif

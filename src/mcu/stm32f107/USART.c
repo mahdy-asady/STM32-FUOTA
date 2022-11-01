@@ -2,6 +2,7 @@
 #include "GPIO.h"
 #include "USART.h"
 #include "delay.h"
+#include "config.h"
 
 #define DEBUG_TO_USART
 
@@ -94,7 +95,7 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
                 return 0;
             }
             else {
-                _delay_ms(500);
+                _delay_ms(WAIT_AFTER_EMPTY_BUFFER);
                 Retry++;
                 continue;
             }
