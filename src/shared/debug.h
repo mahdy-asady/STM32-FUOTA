@@ -24,27 +24,27 @@ ERROR   YES      YES      YES      YES      NO*/
 
     #define log_error(USART, M)         ({USART_SendString(USART, "[ERR] (" __BASE_FILE__ ":" num2str(__LINE__) ") "); USART_WriteLine(USART, M);})
 #else
-    #define log_error(USART, M)         {}
+    #define log_error(USART, M)         do {} while(0)
 #endif
 
 #if LOG_LEVEL>= WARNING_LEVEL
     #define log_warning(USART, M)       ({USART_SendString(USART, "[WARN] (" __BASE_FILE__ ":" num2str(__LINE__) ") "); USART_WriteLine(USART, M);})
 #else
-    #define log_warning(USART, M)       {}
+    #define log_warning(USART, M)       do {} while(0)
 #endif
 
 #if LOG_LEVEL>= INFO_LEVEL
     #define log_info(USART, M)          ({USART_SendString(USART, "[INFO] (" __BASE_FILE__ ":" num2str(__LINE__) ") "); USART_WriteLine(USART, M);})
     #define DebugBlock(x)               do {x} while(0)
 #else
-    #define log_info(USART, M)          {}
-    #define DebugBlock(x)               {}
+    #define log_info(USART, M)          do {} while(0)
+    #define DebugBlock(x)               do {} while(0)
 #endif
 
 #if LOG_LEVEL>= TRACE_LEVEL
     #define log_trace(USART)            USART_WriteLine(USART, "[..] (" __BASE_FILE__ ":" num2str(__LINE__) "->" __func__)
 #else
-    #define log_trace(USART)            {}
+    #define log_trace(USART)            do {} while(0)
 #endif
 
 #endif /*__DEBUG_H_*/
