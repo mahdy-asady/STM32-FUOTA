@@ -43,8 +43,9 @@ int ESP_WifiConnect(char *SSID, char *Password) {
     SendCommand("AT+CWMODE=1");//Set mode to wifi station
     
     log_info(Echo, "Connect to Access point ...");
-    char ConnectionString[100] = "AT+CWJAP=\"Redmi\",\"00000000\"";
-    //snprintf(ConnectionString, 100, "AT+CWJAP=\"%s\",\"%s\"", SSID, Password);
+    char ConnectionString[100];
+    strconcat(ConnectionString, 100, 5, "AT+CWJAP=\"", SSID, "\",\"", Password, "\"");
+    log_info(Echo, ConnectionString);
     if(!SendCommandAndWait(ConnectionString, 1000))
         log_info(Echo, "Access Point Connection failed!!!");
     else

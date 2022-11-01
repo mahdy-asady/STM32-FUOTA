@@ -31,7 +31,7 @@ int main(void) {
     
 
     ESP_Init(&USART2_Handle, &USART1_Handle);
-    ESP_WifiConnect("Redmi", "00000000");
+    ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
 
     //BootApplication();
 

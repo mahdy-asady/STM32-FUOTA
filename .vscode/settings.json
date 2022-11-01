@@ -7,6 +7,9 @@
         "PROCESSOR": "STM32F107xC",
         "F_CPU": "72000000",
         "MCU": "cortex-m3",
+
+        "WIFI_SSID": "esp32",
+        "WIFI_PASS": "123456789"
     },
     "cmake.configureOnOpen": false,
     "files.associations": {
