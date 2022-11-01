@@ -1,4 +1,24 @@
 
+#include<stdarg.h>
+
+void strconcat(char *Destination, int MaxLength, int Count, ...){
+    int CurrentLength = 0;
+    
+    va_list ptr;
+    va_start(ptr, Count);
+
+    for(int i = 0; i < Count; i++) {
+        char *String = va_arg(ptr, char*);
+        while(*String != 0 && CurrentLength < (MaxLength - 1)) {
+            *Destination++ = *String++;
+            CurrentLength++;
+        }
+    }
+    va_end(ptr);
+
+    *Destination = 0;
+}
+
 
 int strcmp(char* String1, char *String2) {
     while(1) {
