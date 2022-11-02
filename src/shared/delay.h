@@ -1,9 +1,9 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-void DelaySet(uint16_t Duration);
-int DelayCatched(void);
+void Delay_ms(uint16_t MiliSeconds);
 
-void _delay_ms(uint16_t duration);
+uint32_t SetTimeout(uint32_t MiliSeconds);
+int TimeoutReached(uint32_t *Counter);
 
 #endif
