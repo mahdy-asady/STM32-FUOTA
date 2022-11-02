@@ -16,7 +16,7 @@ int SendCommandAndWait(char *cmd, uint32_t Delay) {
     while (!TimeoutReached(&Holder))
     {
         Result = USART_ReadLine(Connection, strBuffer, 100);
-        if(!Result || strcmp(strBuffer, "ERROR") == 0)
+        if(strcmp(strBuffer, "ERROR") == 0)
             return 0;
         if(strcmp(strBuffer, "OK") == 0)
             return 1;
