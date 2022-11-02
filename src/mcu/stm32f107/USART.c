@@ -90,12 +90,12 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
     int Retry = 0;
     do{
         if(USART->Buffer.Start == USART->Buffer.End){ //Buffer Empty, wait for incomming
-            if(Retry > 5){
+            if(Retry > EMPTY_BUFFER_RETRY_COUNT){
                 ReturnString[StringPos - 1] = 0;
                 return 0;
             }
             else {
-                Delay_ms(WAIT_AFTER_EMPTY_BUFFER);
+                Delay_ms(EMPTY_BUFFER_WAIT_DELAY);
                 Retry++;
                 continue;
             }
