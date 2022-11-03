@@ -56,5 +56,8 @@ int ESP_WifiConnect(char *SSID, char *Password) {
 }
 
 int ESP_GetURL(char *URI, char *buffer, uint8_t MaxLength) {
+    char Command[200];
+    strconcat(Command, 200, 3, "AT+HTTPCLIENT=1,0,\"", URI, "\",,,1");
+    SendCommandAndWait(Command, HTTP_TIMEOUT);
     return 0;
 }

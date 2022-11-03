@@ -9,4 +9,6 @@
 
 #define AP_CONNECTION_DELAY 5000
 
+#define HTTP_TIMEOUT 5000
+
 #endif
