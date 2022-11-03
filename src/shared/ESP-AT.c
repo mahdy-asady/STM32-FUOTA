@@ -6,13 +6,13 @@
 
 USART_Handle *Connection, *Echo;
 
-int SendCommandAndWait(char *cmd, uint32_t Delay) {
+int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     USART_WriteLine(Connection, cmd);
     
     char strBuffer[100];
     int Result = 0;
 
-    uint32_t Holder = SetTimeout(Delay);
+    uint32_t Holder = SetTimeout(Timeout);
     while (!TimeoutReached(&Holder))
     {
         Result = USART_ReadLine(Connection, strBuffer, 100);
