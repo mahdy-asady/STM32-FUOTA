@@ -12,7 +12,7 @@ USART_Handle *UHandles[2];
 */
 void USART_Init(USART_Handle *USART) {
     //Initiate RX Buffer
-    USART->Buffer.Start = USART->Buffer.End = (char*)&USART->Buffer.Content;
+    USART->Buffer.Start = USART->Buffer.End = USART->Buffer.Content;
 
     // Enable Alternate Function Clock
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
