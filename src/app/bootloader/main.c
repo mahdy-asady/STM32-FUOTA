@@ -8,37 +8,30 @@
 
 extern char FLASH_APP1_OFFSET;
 
+USART_Handle UsartDebug;
+USART_Handle UsartWebConn;
+
 void BootApplication(void);
 void ShowBootloaderSign(void);
 void SystemClockSetup(void);
+void UsartInit(void);
 
 int main(void) {
 
     ShowBootloaderSign();
 
-    USART_Handle USART1_Handle;
-    USART1_Handle.Instance = USART1;
-    USART1_Handle.BaudRate = 40 << 4;
-    USART1_Handle.isPortMapped = 0;
-    USART_Init(&USART1_Handle);
+    UsartInit();
+    
+    log_info(&UsartDebug, "Boot loader Started!");
     
 
-    USART_Handle USART2_Handle;
-    USART2_Handle.Instance = USART2;
-    USART2_Handle.BaudRate = 20 << 4;
-    USART2_Handle.isPortMapped = 1;
-    USART_Init(&USART2_Handle);
-    
-    log_info(&USART1_Handle, "Boot loader Started!");
-    
-
-    ESP_Init(&USART2_Handle, &USART1_Handle);
+    ESP_Init(&UsartWebConn, &UsartDebug);
     ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
 
     char Buffer[100];
     ESP_GetURL(UPDATE_SERVER "/update",Buffer,100);
 
-    log_info(&USART1_Handle, "Done!!!");
+    log_info(&UsartDebug, "Done!!!");
 
     //BootApplication();
 
@@ -100,6 +93,19 @@ void SystemClockSetup(void) {
 
     //APB2 NO Divider
     RCC->CFGR &= ~RCC_CFGR_PPRE2;
+}
+
+
+void UsartInit(void) {
+    UsartDebug.Instance = USART1;
+    UsartDebug.BaudRate = 40 << 4;
+    UsartDebug.isPortMapped = 0;
+    USART_Init(&UsartDebug);
+    
+    UsartWebConn.Instance = USART2;
+    UsartWebConn.BaudRate = 20 << 4;
+    UsartWebConn.isPortMapped = 1;
+    USART_Init(&UsartWebConn);
 }
 
 void BootApplication(void) {
