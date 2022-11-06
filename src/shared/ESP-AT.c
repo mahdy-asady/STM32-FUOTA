@@ -4,6 +4,8 @@
 #include "debug.h"
 #include "config.h"
 
+#define DEBUG_TO_USART
+
 USART_Handle *Connection, *Echo;
 
 int SendCommandAndWait(char *cmd, uint32_t Timeout) {
@@ -16,6 +18,10 @@ int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     while (!TimeoutReached(Holder, Timeout))
     {
         Result = USART_ReadLine(Connection, strBuffer, 100);
+
+        #ifdef DEBUG_TO_USART
+        log_info(Echo, strBuffer);
+        #endif
         if(strcmp(strBuffer, "ERROR") == 0)
             return 0;
         if(strcmp(strBuffer, "OK") == 0)
