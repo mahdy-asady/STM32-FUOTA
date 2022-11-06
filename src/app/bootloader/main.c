@@ -4,7 +4,7 @@
 #include "USART.h"
 #include "ESP-AT.h"
 #include "debug.h"
-#include "delay.h"
+#include "timer.h"
 
 extern char FLASH_APP1_OFFSET;
 

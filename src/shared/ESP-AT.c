@@ -1,6 +1,6 @@
 #include "string.h"
 #include "USART.h"
-#include "delay.h"
+#include "timer.h"
 #include "debug.h"
 #include "config.h"
 

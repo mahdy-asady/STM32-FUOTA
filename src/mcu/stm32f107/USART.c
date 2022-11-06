@@ -1,7 +1,7 @@
 #include "stm32f107xc.h"
 #include "GPIO.h"
 #include "USART.h"
-#include "delay.h"
+#include "timer.h"
 #include "config.h"
 
 USART_Handle *UHandles[2];
