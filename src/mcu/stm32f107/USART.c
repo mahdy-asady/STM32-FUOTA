@@ -4,8 +4,6 @@
 #include "delay.h"
 #include "config.h"
 
-#define DEBUG_TO_USART
-
 USART_Handle *UHandles[2];
 
 
@@ -138,13 +136,6 @@ void ReceiveData(USART_Handle *USART) {
         char Char = (char)((uint8_t)(USART->Instance->DR) & 0x7F);
         *(USART->Buffer.End) = Char;
         USART->Buffer.End = NewEnd;
-
-
-
-        #ifdef DEBUG_TO_USART
-        char DebugChar[2] = {Char, 0};
-        USART_SendString(UHandles[0], DebugChar);
-        #endif
     }
 }
 
