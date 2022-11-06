@@ -4,6 +4,7 @@
 #include "USART.h"
 #include "ESP-AT.h"
 #include "debug.h"
+#include "delay.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -111,9 +112,9 @@ void ShowBootloaderSign(void) {
 
     for(int i = 0; i < 5; i++) {
         GPIO_TogglePin(GPIOD, PIN_04);
-        for (volatile int j = 0; j < 300000; j++);
+        Delay_ms(300);
     }
-    for (volatile int j = 0; j < 600000; j++);
+    Delay_ms(600);
     GPIO_TogglePin(GPIOD, PIN_04);
 
     //cleanup. Set anything as untouched
