@@ -131,6 +131,8 @@ void ReceiveData(USART_Handle *USART) {
 
         if(NewEnd == USART->Buffer.Start) {
             //Buffer overflow
+            //we will miss some characters on buffer overflow
+            char TempChar = (char)((uint8_t)(USART->Instance->DR) & 0x7F);
             return;
         }
         char Char = (char)((uint8_t)(USART->Instance->DR) & 0x7F);
