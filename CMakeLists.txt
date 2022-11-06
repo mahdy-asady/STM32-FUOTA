@@ -20,7 +20,12 @@ if( BUILD STREQUAL "release")
 
 elseif( BUILD STREQUAL "debug")
 
-    set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL}")
+    if(DEBUG_TO_USART EQUAL 1)
+        set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL} -DDEBUG_TO_USART")
+    else()
+        set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL}")
+    endif()
+
     set(COPT      "")
 
 endif()

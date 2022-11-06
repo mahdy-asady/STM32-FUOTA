@@ -4,8 +4,6 @@
 #include "debug.h"
 #include "config.h"
 
-#define DEBUG_TO_USART
-
 USART_Handle *Connection, *Echo;
 
 int SendCommandAndWait(char *cmd, uint32_t Timeout) {
