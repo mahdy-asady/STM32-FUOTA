@@ -79,15 +79,25 @@ void USART_WriteLine(USART_Handle *USART, char *Text) {
     USART_SendString(USART, "\r\n");
 }
 
+int USART_GetByte(USART_Handle *USART, uint8_t *ReturnData) {
+    if(USART->Buffer.Start != USART->Buffer.End){
+        *ReturnData = *(USART->Buffer.Start++);
+        if(USART->Buffer.Start == (USART->Buffer.Content + USART_BUFFER_SIZE))
+            USART->Buffer.Start = USART->Buffer.Content;
+        return 1;
+    }
+    return 0;
+}
+
 /*
     USART_ReadLine
 */
 int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSize){
     uint8_t StringPos = 0;
-    char CurrentChar = 0;
+    uint8_t CurrentChar = 0;
     int Retry = 0;
     do{
-        if(USART->Buffer.Start == USART->Buffer.End){ //Buffer Empty, wait for incomming
+        if(!USART_GetByte(USART, &CurrentChar)){
             if(Retry > EMPTY_BUFFER_RETRY_COUNT){
                 ReturnString[StringPos] = 0;
                 return 0;
@@ -99,10 +109,7 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
             }
         }
         Retry = 0;
-        CurrentChar = *(USART->Buffer.Start++);
         ReturnString[StringPos++] = CurrentChar;
-        if(USART->Buffer.Start == (USART->Buffer.Content + USART_BUFFER_SIZE))
-            USART->Buffer.Start = USART->Buffer.Content;
 
     }while(CurrentChar != '\n' && StringPos < ReturnMaxSize); // got \n or ReturnStriing full
     /*
