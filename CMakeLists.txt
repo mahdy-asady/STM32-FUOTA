@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 set(PROJECT_PATH "src/app/${PROJECT}")
 
-set(CDEFS     "-DF_CPU=${F_CPU} -DBAUD=${BAUD} -D${PROCESSOR} -DWIFI_SSID=\\\"${WIFI_SSID}\\\" -DWIFI_PASS=\\\"${WIFI_PASS}\\\"")
+set(CDEFS     "-DF_CPU=${F_CPU} -DBAUD=${BAUD} -D${PROCESSOR} -DWIFI_SSID=\\\"${WIFI_SSID}\\\" -DWIFI_PASS=\\\"${WIFI_PASS}\\\" -DUPDATE_SERVER=\\\"${UPDATE_SERVER}\\\"")
 set(CSTANDARD "-std=gnu99")
 set(CWARN     "-Wall -Wextra -Wstrict-prototypes -Wshadow -Wdouble-promotion -Wundef -fno-common -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable")
 

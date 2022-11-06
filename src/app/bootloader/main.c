@@ -36,7 +36,7 @@ int main(void) {
     ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
 
     char Buffer[100];
-    ESP_GetURL("http://192.168.11.157/update",Buffer,100);
+    ESP_GetURL(UPDATE_SERVER "/update",Buffer,100);
 
     log_info(&USART1_Handle, "Done!!!");
 

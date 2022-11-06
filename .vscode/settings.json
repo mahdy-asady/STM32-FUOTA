@@ -9,7 +9,8 @@
         "MCU": "cortex-m3",
 
         "WIFI_SSID": "esp32",
-        "WIFI_PASS": "123456789"
+        "WIFI_PASS": "123456789",
+        "UPDATE_SERVER": "http://192.168.11.157"
     },
     "cmake.configureOnOpen": false,
     "files.associations": {
