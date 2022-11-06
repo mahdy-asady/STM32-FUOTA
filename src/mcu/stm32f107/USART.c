@@ -89,7 +89,7 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
     do{
         if(USART->Buffer.Start == USART->Buffer.End){ //Buffer Empty, wait for incomming
             if(Retry > EMPTY_BUFFER_RETRY_COUNT){
-                ReturnString[StringPos - 1] = 0;
+                ReturnString[StringPos] = 0;
                 return 0;
             }
             else {
