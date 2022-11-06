@@ -11,4 +11,6 @@
 
 #define HTTP_TIMEOUT 5000
 
+#define RESPONSE_LINE_BUFFER_LENGTH 100
+
 #endif
