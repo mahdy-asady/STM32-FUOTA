@@ -1,38 +1,30 @@
 #include <stdint.h>
 #include "stm32f107xc.h"
 
-void _delaySet(uint32_t Loader) {
-    SysTick->LOAD = Loader & 0xFFFFFF;
-    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
-    SysTick->CTRL &= ~SysTick_CTRL_COUNTFLAG_Msk;
+void TimerInit(void) {
+    //Setup Timer2 as 1ms Timer Counter
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    TIM2->PSC = 36000 - 1; //0.5ms : 2kHz
+    TIM2->EGR |= TIM_EGR_UG;
+    TIM2->CR1 |= TIM_CR1_CEN;
 }
 
-int _delayCatched(void) {
-    int Result = SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk;
-    return Result;
+uint16_t GetSysTick(void) {
+    return TIM2->CNT;
 }
 
-uint32_t SetTimeout(uint32_t MiliSeconds) {
-    uint32_t TotalTicks = MiliSeconds * ((F_CPU/8UL)/1000);
-    uint32_t Counter = (TotalTicks >> 24) + 1;
-    uint32_t LoadValue = TotalTicks / Counter;
-    _delaySet(LoadValue);
-    return Counter;
-}
+int TimeoutReached(uint16_t _SysTick, uint16_t Timeout) {
+    uint16_t TimeoutTick = Timeout * 2;
 
-int TimeoutReached(uint32_t *Counter) {
-    if(_delayCatched())
-        (*Counter)--;
-    if((*Counter) == 0) {
-        SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-        return 1;
-    }
-    return 0;
+    if((uint16_t)(TIM2->CNT - _SysTick) < TimeoutTick)
+        return 0;
+    return 1;
 }
 
 
 void Delay_ms(uint16_t MiliSeconds) {
-    uint32_t Counter = SetTimeout(MiliSeconds);
-    
-    while(!TimeoutReached(&Counter));
+    uint16_t StartTime = TIM2->CNT;
+    uint16_t Ticks = MiliSeconds *= 2;
+
+    while((uint16_t)(TIM2->CNT - StartTime) < Ticks);
 }

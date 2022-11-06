@@ -12,8 +12,8 @@ int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     char strBuffer[100];
     int Result = 0;
 
-    uint32_t Holder = SetTimeout(Timeout);
-    while (!TimeoutReached(&Holder))
+    uint16_t Holder = GetSysTick();
+    while (!TimeoutReached(Holder, Timeout))
     {
         Result = USART_ReadLine(Connection, strBuffer, 100);
         if(strcmp(strBuffer, "ERROR") == 0)

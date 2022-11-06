@@ -93,6 +93,9 @@ void SystemInit(void) {
 
     //APB2 NO Divider
     RCC->CFGR &= ~RCC_CFGR_PPRE2;
+
+    //Init timer module
+    TimerInit();
 }
 
 void BootApplication(void) {
