@@ -10,6 +10,7 @@ extern char FLASH_APP1_OFFSET;
 
 void BootApplication(void);
 void ShowBootloaderSign(void);
+void SystemClockSetup(void);
 
 int main(void) {
 
@@ -44,10 +45,16 @@ int main(void) {
     while(1);
 }
 
+
+void SystemInit(void) {
+    SystemClockSetup();
+    TimerInit();
+}
+
 /*
     Set System Clock to 72Mhz
 */
-void SystemInit(void) {
+void SystemClockSetup(void) {
     //Enable HSE & Wait to be ready
     RCC->CR |= RCC_CR_HSEON;
     while (!(RCC->CR & RCC_CR_HSERDY));
@@ -93,9 +100,6 @@ void SystemInit(void) {
 
     //APB2 NO Divider
     RCC->CFGR &= ~RCC_CFGR_PPRE2;
-
-    //Init timer module
-    TimerInit();
 }
 
 void BootApplication(void) {
