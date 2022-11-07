@@ -1,4 +1,3 @@
-#include "stm32f107xc.h"
 #include "GPIO.h"
 #include "USART.h"
 #include "timer.h"
