@@ -65,3 +65,20 @@ int ESP_GetURL(char *URI, char *buffer, uint8_t MaxLength) {
     SendCommandAndWait(Command, HTTP_TIMEOUT);
     return 0;
 }
+
+
+uint32_t ESP_GetFileSize(char *URI) {
+    return 0;
+}
+
+//fetches the range, puts to buffer, return the length
+int ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *Buffer, uint8_t MaxLength) {
+    if(EndByte - StartByte > MaxLength)
+        return 0;
+    
+    char Command[200];
+    strconcat(Command, 200, 3, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=0-199\"");
+    USART_WriteLine(Connection, Command);
+    //SendCommandAndWait(Command, HTTP_TIMEOUT);
+    return 0;
+}
