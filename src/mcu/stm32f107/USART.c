@@ -11,7 +11,7 @@ USART_Handle *UHandles[2];
 */
 void USART_Init(USART_Handle *USART) {
     //Initiate RX Buffer
-    USART->Buffer.Start = USART->Buffer.End = USART->Buffer.Content;
+    FIFO_Init(&USART->Buffer);
 
     // Enable Alternate Function Clock
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
@@ -78,13 +78,14 @@ void USART_WriteLine(USART_Handle *USART, char *Text) {
     USART_SendString(USART, "\r\n");
 }
 
-int USART_BufferPop(USART_Handle *USART, uint8_t *ReturnData) {
-    if(USART->Buffer.Start != USART->Buffer.End){
-        *ReturnData = *(USART->Buffer.Start++);
-        if(USART->Buffer.Start == (USART->Buffer.Content + USART_BUFFER_SIZE))
-            USART->Buffer.Start = USART->Buffer.Content;
-        return 1;
-    }
+int USART_BufferPopWithTimeout(USART_Handle *USART, uint8_t *ReturnData, uint32_t Timeout) {
+    uint16_t Timer = GetSysTick();
+    do {
+        if(!FIFO_IsEmpty(&USART->Buffer)) {
+            *ReturnData = FIFO_Pop(&USART->Buffer);
+            return 1;
+        }
+    }while(!TimeoutReached(Timer, Timeout));
     return 0;
 }
 
@@ -94,23 +95,14 @@ int USART_BufferPop(USART_Handle *USART, uint8_t *ReturnData) {
 int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSize){
     uint8_t StringPos = 0;
     uint8_t CurrentChar = 0;
-    int Retry = 0;
+    uint8_t ReadResult = 0;
     do{
-        if(!USART_BufferPop(USART, &CurrentChar)){
-            if(Retry > EMPTY_BUFFER_RETRY_COUNT){
-                ReturnString[StringPos] = 0;
-                return 0;
-            }
-            else {
-                Delay_ms(EMPTY_BUFFER_WAIT_DELAY);
-                Retry++;
-                continue;
-            }
+        ReadResult = USART_BufferPopWithTimeout(USART, &CurrentChar, EMPTY_BUFFER_WAIT_DELAY);
+        if(ReadResult) {
+            ReturnString[StringPos] = CurrentChar;
         }
-        Retry = 0;
-        ReturnString[StringPos++] = CurrentChar;
-
-    }while(CurrentChar != '\n' && StringPos < ReturnMaxSize); // got \n or ReturnStriing full
+        StringPos++;
+    }while(ReadResult && CurrentChar != '\n' && StringPos < ReturnMaxSize); // got \n or ReturnStriing full
     /*
         TODO: In Case of ReturnString full we will miss a character!!
     */
@@ -127,23 +119,13 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
 */
 void ReceiveData(USART_Handle *USART) {
     while(USART->Instance->SR & USART_SR_RXNE) {
-        char *NewEnd;
-        if(USART->Buffer.End == (USART->Buffer.Content + USART_BUFFER_SIZE - 1)) {
-            NewEnd = USART->Buffer.Content;
-        }
-        else {
-            NewEnd = USART->Buffer.End + 1;
-        }
-
-        if(NewEnd == USART->Buffer.Start) {
+        if(FIFO_IsFull(&USART->Buffer)) {
             //Buffer overflow
             //we will miss some characters on buffer overflow
             (void)(USART->Instance->DR);
             return;
         }
-        char Char = (char)((uint8_t)(USART->Instance->DR) & 0x7F);
-        *(USART->Buffer.End) = Char;
-        USART->Buffer.End = NewEnd;
+        FIFO_Push(&USART->Buffer, (uint8_t)(USART->Instance->DR) & 0x7F);
     }
 }
 
