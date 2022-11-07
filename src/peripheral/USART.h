@@ -27,7 +27,7 @@ void USART_SendString(USART_Handle*, char*);
 
 void USART_WriteLine(USART_Handle*, char*);
 
-int USART_GetByte(USART_Handle *USART, uint8_t *ReturnData);
+int USART_BufferPop(USART_Handle *USART, uint8_t *ReturnData);
 
 int USART_ReadLine(USART_Handle*, char*, uint8_t);
 
