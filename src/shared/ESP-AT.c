@@ -1,3 +1,4 @@
+//#include <stdlib.h>
 #include "string.h"
 #include "USART.h"
 #include "timer.h"
@@ -8,7 +9,6 @@ USART_Handle *Connection, *Echo;
 
 int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     USART_WriteLine(Connection, cmd);
-    
     char strBuffer[RESPONSE_LINE_BUFFER_LENGTH];
     int Result = 0;
 
@@ -67,13 +67,37 @@ int ESP_GetURL(char *URI, char *buffer, uint8_t MaxLength) {
 }
 
 //fetches the range, puts to buffer, return the length
-int ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *Buffer, uint8_t MaxLength) {
-    if(EndByte - StartByte > MaxLength)
+uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *Buffer, uint8_t MaxLength) {
+    if((EndByte - StartByte) > MaxLength)
         return 0;
     
-    char Command[200];
-    strconcat(Command, 200, 3, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=0-199\"");
-    USART_WriteLine(Connection, Command);
-    //SendCommandAndWait(Command, HTTP_TIMEOUT);
-    return 0;
+    char CommandText[200];
+    uint8_t TempCharacter;
+    uint8_t ChunkSize = 0;
+
+    char StartRange[11], EndRange[11];
+    Num2Str(StartByte, StartRange);
+    Num2Str(EndByte, EndRange);
+
+    strconcat(CommandText, 200, 7, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=", StartRange, "-", EndRange, "\"");
+    USART_WriteLine(Connection, CommandText);
+    
+    if(!USART_BufferPopWithTimeout(Connection, &TempCharacter, HTTP_TIMEOUT) || TempCharacter != '+')
+        return 0;
+
+    //remove "HTTPCLIENT:" From Buffer
+    for(uint8_t i = 0; i< 11; i++)
+        USART_BufferPopWithTimeout(Connection, &TempCharacter, HTTP_TIMEOUT);
+
+    //get chunk size
+    TempCharacter = '0';
+    while(TempCharacter >= '0' && TempCharacter <= '9') {
+        ChunkSize = ChunkSize * 10 + (TempCharacter - '0');
+        USART_BufferPopWithTimeout(Connection, &TempCharacter, HTTP_TIMEOUT);
+    }
+    //Get Content
+    for(uint8_t i = 0; i< ChunkSize; i++)
+        USART_BufferPopWithTimeout(Connection, (uint8_t *)&Buffer[i], HTTP_TIMEOUT);
+
+    return ChunkSize;
 }
