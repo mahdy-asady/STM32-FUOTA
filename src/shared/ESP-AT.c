@@ -91,6 +91,9 @@ uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, uint8_
     //Get Content
     for(uint8_t i = 0; i< ChunkSize; i++)
         USART_BufferPopWithTimeout(Connection, (uint8_t *)&Buffer[i], HTTP_TIMEOUT);
+    
+    //Content Finish, read untill end of content
+    while(USART_BufferPopWithTimeout(Connection, &TempCharacter, 50));
 
     return ChunkSize;
 }
