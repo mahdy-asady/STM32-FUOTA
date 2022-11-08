@@ -66,11 +66,6 @@ int ESP_GetURL(char *URI, char *buffer, uint8_t MaxLength) {
     return 0;
 }
 
-
-uint32_t ESP_GetFileSize(char *URI) {
-    return 0;
-}
-
 //fetches the range, puts to buffer, return the length
 int ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *Buffer, uint8_t MaxLength) {
     if(EndByte - StartByte > MaxLength)
