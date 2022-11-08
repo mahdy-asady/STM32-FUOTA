@@ -161,7 +161,7 @@ void ShowBootloaderSign(void) {
 bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC) {
     uint8_t FileContentBuffer[200];
    
-    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, 200, FileContentBuffer, 200);
+    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, 199, FileContentBuffer, 200);
     if(!ContentSize)
         return false;
     
