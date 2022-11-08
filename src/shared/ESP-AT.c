@@ -49,7 +49,7 @@ int ESP_WifiConnect(char *SSID, char *Password) {
     
     log_info(Echo, "Connect to Access point ...");
     char ConnectionString[100];
-    strconcat(ConnectionString, 100, 5, "AT+CWJAP=\"", SSID, "\",\"", Password, "\"");
+    StrConcat(ConnectionString, 100, 5, "AT+CWJAP=\"", SSID, "\",\"", Password, "\"");
     log_info(Echo, ConnectionString);
     if(!SendCommandAndWait(ConnectionString, AP_CONNECTION_DELAY))
         log_info(Echo, "Access Point Connection failed!!!");
@@ -72,7 +72,7 @@ uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, uint8_
     Num2Str(StartByte, StartRange);
     Num2Str(EndByte, EndRange);
 
-    strconcat(CommandText, 200, 7, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=", StartRange, "-", EndRange, "\"");
+    StrConcat(CommandText, 200, 7, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=", StartRange, "-", EndRange, "\"");
     USART_WriteLine(Connection, CommandText);
 
     if(!USART_BufferPopWithTimeout(Connection, &TempCharacter, HTTP_TIMEOUT) || TempCharacter != '+')

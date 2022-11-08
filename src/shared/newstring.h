@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-void strconcat(char *Destination, int MaxLength, int Count, ...);
+void StrConcat(char *Destination, int MaxLength, int Count, ...);
 
 int StrCompare(char* String1, char *String2);
 

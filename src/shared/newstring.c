@@ -1,6 +1,6 @@
 #include "newstring.h"
 
-void strconcat(char *Destination, int MaxLength, int Count, ...){
+void StrConcat(char *Destination, int MaxLength, int Count, ...){
     int CurrentLength = 0;
     
     va_list ptr;
