@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+
 #include "stm32f107xc.h"
 #include "GPIO.h"
 #include "USART.h"
@@ -15,6 +18,7 @@ void BootApplication(void);
 void ShowBootloaderSign(void);
 void SystemClockSetup(void);
 void UsartInit(void);
+bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC);
 
 int main(void) {
 
@@ -28,26 +32,12 @@ int main(void) {
     ESP_Init(&UsartWebConn, &UsartDebug);
     ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
 
-    
-    //ESP_GetURL(UPDATE_SERVER "/update",Buffer,100);
-    /*
-        update file data structure:
-        Index   Byte Length     Content
-        0       1               Version Patch
-        1       1               Version Minor
-        2       1               Version Major
-        3       1               NULL
-        4       1               File Name Length
-        5       FileLength      File Name
-        6       1               NULL
-        7       4               File Size (In little Endian 32 bit number)
-        8       4               File Content CRC32
-        9       1               NULL
+    uint32_t    UpdateVersion;
+    char        FileName[255];
+    uint32_t    FileSize;
+    uint8_t     FileCRC[4];
+    GetUpdateInfo(&UpdateVersion, FileName, &FileSize, FileCRC);
 
-    */
-   char Buffer[200];
-   
-    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, 200, Buffer, 200);
     log_info(&UsartDebug, "Done!!!");
 
     //BootApplication();
@@ -149,4 +139,50 @@ void ShowBootloaderSign(void) {
 
     //cleanup. Set anything as untouched
     GPIO_DisablePort(GPIOD);
+}
+
+
+/*
+    update file data structure:
+    Index   Byte Length     Content
+    0       1               Version Patch
+    1       1               Version Minor
+    2       1               Version Major
+    3       1               NULL
+    4       1               File Name Length
+    5       FileLength      File Name
+    6       1               NULL
+    7       4               File Size (In little Endian 32 bit number)
+    8       4               File Content CRC32
+    9       1               NULL
+
+*/
+
+bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC) {
+    uint8_t FileContentBuffer[200];
+   
+    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, 200, FileContentBuffer, 200);
+    if(!ContentSize)
+        return false;
+    
+    uint8_t AddressOffset = 0;
+
+    *FileVersion = *((uint32_t*)FileContentBuffer);
+    AddressOffset += 4;
+
+    uint8_t FileNameLength = *((uint8_t*)(FileContentBuffer + AddressOffset));
+    AddressOffset += 1;
+
+    strlcpy(FileName, (char *)(FileContentBuffer + AddressOffset), FileNameLength + 1);
+    AddressOffset += FileNameLength + 1;
+
+    *FileSize = *((uint32_t*)(FileContentBuffer + AddressOffset));
+    AddressOffset += 4;
+
+    FileCRC[0] = *((uint8_t*)FileContentBuffer + AddressOffset++);
+    FileCRC[1] = *((uint8_t*)FileContentBuffer + AddressOffset++);
+    FileCRC[2] = *((uint8_t*)FileContentBuffer + AddressOffset++);
+    FileCRC[3] = *((uint8_t*)FileContentBuffer + AddressOffset++);
+
+    return true;
 }
