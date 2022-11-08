@@ -33,13 +33,16 @@ int main(void) {
     /*
         update file data structure:
         Index   Byte Length     Content
-        0       1               Version Major
+        0       1               Version Patch
         1       1               Version Minor
-        2       1               Version Patch
-        3       1               File Name Length
-        4       FileLength      File Name
-        5       4               File Size (In little Endian 32 bit number)
-        6       5               File Content CRC32
+        2       1               Version Major
+        3       1               NULL
+        4       1               File Name Length
+        5       FileLength      File Name
+        6       1               NULL
+        7       4               File Size (In little Endian 32 bit number)
+        8       4               File Content CRC32
+        9       1               NULL
 
     */
    char Buffer[200];
