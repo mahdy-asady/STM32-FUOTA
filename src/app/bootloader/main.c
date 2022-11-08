@@ -28,9 +28,23 @@ int main(void) {
     ESP_Init(&UsartWebConn, &UsartDebug);
     ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
 
-    char Buffer[100];
-    ESP_GetURL(UPDATE_SERVER "/update",Buffer,100);
+    
+    //ESP_GetURL(UPDATE_SERVER "/update",Buffer,100);
+    /*
+        update file data structure:
+        Index   Byte Length     Content
+        0       1               Version Major
+        1       1               Version Minor
+        2       1               Version Patch
+        3       1               File Name Length
+        4       FileLength      File Name
+        5       4               File Size (In little Endian 32 bit number)
+        6       5               File Content CRC32
 
+    */
+   char Buffer[200];
+   
+    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, 200, Buffer, 200);
     log_info(&UsartDebug, "Done!!!");
 
     //BootApplication();

@@ -59,13 +59,6 @@ int ESP_WifiConnect(char *SSID, char *Password) {
     return 1;
 }
 
-int ESP_GetURL(char *URI, char *buffer, uint8_t MaxLength) {
-    char Command[200];
-    strconcat(Command, 200, 3, "AT+HTTPCLIENT=1,0,\"", URI, "\",,,1");
-    SendCommandAndWait(Command, HTTP_TIMEOUT);
-    return 0;
-}
-
 //fetches the range, puts to buffer, return the length
 uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *Buffer, uint8_t MaxLength) {
     if((EndByte - StartByte) > MaxLength)
@@ -81,7 +74,7 @@ uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, char *
 
     strconcat(CommandText, 200, 7, "AT+HTTPCLIENT=2,0,\"", URI, "\",,,1,\"Range: bytes=", StartRange, "-", EndRange, "\"");
     USART_WriteLine(Connection, CommandText);
-    
+
     if(!USART_BufferPopWithTimeout(Connection, &TempCharacter, HTTP_TIMEOUT) || TempCharacter != '+')
         return 0;
 
