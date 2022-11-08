@@ -1,4 +1,4 @@
-#include "string.h"
+#include "newstring.h"
 
 void strconcat(char *Destination, int MaxLength, int Count, ...){
     int CurrentLength = 0;
@@ -19,7 +19,7 @@ void strconcat(char *Destination, int MaxLength, int Count, ...){
 }
 
 
-int strcmp(char* String1, char *String2) {
+int StrCompare(char* String1, char *String2) {
     while(1) {
         if(*String1 == 0 && *String2 == 0)
             return 0;

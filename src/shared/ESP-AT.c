@@ -1,5 +1,5 @@
 //#include <stdlib.h>
-#include "string.h"
+#include "newstring.h"
 #include "USART.h"
 #include "timer.h"
 #include "debug.h"
@@ -20,9 +20,9 @@ int SendCommandAndWait(char *cmd, uint32_t Timeout) {
         #ifdef DEBUG_TO_USART
         log_info(Echo, strBuffer);
         #endif
-        if(strcmp(strBuffer, "ERROR") == 0)
+        if(StrCompare(strBuffer, "ERROR") == 0)
             return 0;
-        if(strcmp(strBuffer, "OK") == 0)
+        if(StrCompare(strBuffer, "OK") == 0)
             return 1;
     }
     return 0;
