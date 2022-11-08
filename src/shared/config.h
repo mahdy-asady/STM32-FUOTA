@@ -13,4 +13,6 @@
 
 #define RESPONSE_LINE_BUFFER_LENGTH 100
 
+#define DOWNLOAD_CHUNK_SIZE 200
+
 #endif
