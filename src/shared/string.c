@@ -1,5 +1,4 @@
-
-#include<stdarg.h>
+#include "string.h"
 
 void strconcat(char *Destination, int MaxLength, int Count, ...){
     int CurrentLength = 0;
@@ -32,4 +31,26 @@ int strcmp(char* String1, char *String2) {
         String1++;
         String2++;
     }
+}
+
+char *Num2Str(uint32_t Number, char * Str) {
+    uint32_t Divider = 1000000000;
+    uint8_t BiggestFound = 0;
+    uint8_t Index = 0;
+
+    while(Divider > 0) {
+        uint8_t Result = Number / Divider;
+        Number %= Divider;
+        Divider /= 10;
+
+        if(Result > 0 || BiggestFound) {
+            BiggestFound = 1;
+            Str[Index++] = '0' + Result;
+        }
+    }
+    if(Index == 0)
+        Str[Index++] = '0';
+    
+    Str[Index] = 0;
+    return Str;
 }
