@@ -125,7 +125,7 @@ void ReceiveData(USART_Handle *USART) {
             (void)(USART->Instance->DR);
             return;
         }
-        FIFO_Push(&USART->Buffer, (uint8_t)(USART->Instance->DR) & 0x7F);
+        FIFO_Push(&USART->Buffer, (uint8_t)(USART->Instance->DR));
     }
 }
 
