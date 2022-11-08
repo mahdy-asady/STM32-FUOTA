@@ -8,6 +8,7 @@
 #include "ESP-AT.h"
 #include "debug.h"
 #include "timer.h"
+#include "newstring.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -19,6 +20,7 @@ void ShowBootloaderSign(void);
 void SystemClockSetup(void);
 void UsartInit(void);
 bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC);
+bool DownloadUpdate(char *FilePath, uint32_t FileSize);
 
 int main(void) {
 
@@ -37,6 +39,11 @@ int main(void) {
     uint32_t    FileSize;
     uint8_t     FileCRC[4];
     GetUpdateInfo(&UpdateVersion, FileName, &FileSize, FileCRC);
+
+    char BinaryFileName[255];
+    StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
+    
+    DownloadUpdate(BinaryFileName, FileSize);
 
     log_info(&UsartDebug, "Done!!!");
 
@@ -185,4 +192,25 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
     FileCRC[3] = *((uint8_t*)FileContentBuffer + AddressOffset++);
 
     return true;
+}
+
+bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
+    uint32_t StartOffset = 0;
+    uint32_t EndOffset = DOWNLOAD_CHUNK_SIZE - 1;
+    uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
+   
+    while(StartOffset < FileSize) {
+        uint8_t ContentSize = ESP_GetFileChunk(FilePath, StartOffset, EndOffset, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
+        if(ContentSize == 0)
+            return 0;
+
+        char StrOffset[20];
+        Num2Str(StartOffset, StrOffset);
+        log_info(&UsartDebug, StrOffset);
+        
+        StartOffset += DOWNLOAD_CHUNK_SIZE;
+        EndOffset += DOWNLOAD_CHUNK_SIZE;
+    }
+
+    return 1;
 }
