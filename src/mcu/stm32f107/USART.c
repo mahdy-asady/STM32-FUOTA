@@ -111,7 +111,7 @@ int USART_ReadLine(USART_Handle *USART, char *ReturnString, uint8_t ReturnMaxSiz
     ReturnString[StringPos - 1] = 0;
     if(ReturnString[StringPos-2] == '\r')
         ReturnString[StringPos - 2] = 0;
-    return 1;
+    return StringPos;
 }
 
 /*
