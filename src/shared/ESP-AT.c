@@ -10,12 +10,11 @@ USART_Handle *Connection, *Echo;
 int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     USART_WriteLine(Connection, cmd);
     char strBuffer[RESPONSE_LINE_BUFFER_LENGTH];
-    int Result = 0;
 
     uint16_t Holder = GetSysTick();
     while (!TimeoutReached(Holder, Timeout))
     {
-        Result = USART_ReadLine(Connection, strBuffer, RESPONSE_LINE_BUFFER_LENGTH);
+        USART_ReadLine(Connection, strBuffer, RESPONSE_LINE_BUFFER_LENGTH);
 
         #ifdef DEBUG_TO_USART
         log_info(Echo, strBuffer);
