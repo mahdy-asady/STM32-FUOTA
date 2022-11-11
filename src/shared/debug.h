@@ -7,13 +7,15 @@
 #define ERROR_LEVEL         1
 #define WARNING_LEVEL       2
 #define INFO_LEVEL          3
-#define TRACE_LEVEL         4
+#define REPORT_LEVEL        4
+#define TRACE_LEVEL         5
 
-/*      TRACE   INFO    WARN    ERROR   NONE
-TRACE   YES      NO      NO      NO      NO
-INFO    YES      YES      NO      NO      NO
-WARN    YES      YES      YES      NO      NO
-ERROR   YES      YES      YES      YES      NO*/
+/*      TRACE   REPORT  INFO    WARN    ERROR   NONE
+TRACE   YES     NO      NO      NO      NO      NO
+REPORT  YES     YES     NO      NO      NO      NO
+INFO    YES     YES     YES     NO      NO      NO
+WARN    YES     YES     YES     YES     NO      NO
+ERROR   YES     YES     YES     YES     YES     NO*/
 
 /* -- Macro Definitions */
 
@@ -39,6 +41,12 @@ ERROR   YES      YES      YES      YES      NO*/
 #else
     #define log_info(USART, M)          do {} while(0)
     #define DebugBlock(x)               do {} while(0)
+#endif
+
+#if LOG_LEVEL>= REPORT_LEVEL
+    #define log_report(USART, M)          ({USART_SendString(USART, "[RPT] (" __BASE_FILE__ ":" num2str(__LINE__) ") "); USART_WriteLine(USART, M);})
+#else
+    #define log_report(USART, M)          do {} while(0)
 #endif
 
 #if LOG_LEVEL>= TRACE_LEVEL

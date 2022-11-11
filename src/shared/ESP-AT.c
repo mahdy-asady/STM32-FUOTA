@@ -15,10 +15,8 @@ int SendCommandAndWait(char *cmd, uint32_t Timeout) {
     while (!TimeoutReached(Holder, Timeout))
     {
         USART_ReadLine(Connection, strBuffer, RESPONSE_LINE_BUFFER_LENGTH);
+        log_report(Echo, strBuffer);
 
-        #ifdef DEBUG_TO_USART
-        log_info(Echo, strBuffer);
-        #endif
         if(StrCompare(strBuffer, "ERROR") == 0)
             return 0;
         if(StrCompare(strBuffer, "OK") == 0)
