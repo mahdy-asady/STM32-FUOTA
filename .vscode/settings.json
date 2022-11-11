@@ -2,10 +2,16 @@
     "cmake.configureSettings": {
         "BUILD": "debug", /*release OR debug*/
         "PROJECT": "bootloader",
+        "LOG_LEVEL": 4,
 
         "PROCESSOR": "STM32F107xC",
         "F_CPU": "72000000",
         "MCU": "cortex-m3",
+
+        "WIFI_SSID": "esp32",
+        "WIFI_PASS": "123456789",
+        "UPDATE_SERVER": "http://192.168.11.157",
+        "DEBUG_TO_USART": 1
     },
     "cmake.configureOnOpen": false,
     "files.associations": {

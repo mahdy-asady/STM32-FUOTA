@@ -5,6 +5,11 @@ if( MCU STREQUAL "cortex-m3" )
 
     set(INC_FILES main.c
         ../../mcu/stm32f107/GPIO.c
+        ../../mcu/stm32f107/USART.c
+        ../../shared/timer.c
+        ../../shared/newstring.c
+        ../../shared/ESP-AT.c
+        ../../shared/fifo.c
         ../../mcu/stm32f107/startup_stm32f107xc.s
     )
 endif()

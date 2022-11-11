@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 set(PROJECT_PATH "src/app/${PROJECT}")
 
-set(CDEFS     "-DF_CPU=${F_CPU} -DBAUD=${BAUD} -D${PROCESSOR}")
+set(CDEFS     "-DF_CPU=${F_CPU} -DBAUD=${BAUD} -D${PROCESSOR} -DWIFI_SSID=\\\"${WIFI_SSID}\\\" -DWIFI_PASS=\\\"${WIFI_PASS}\\\" -DUPDATE_SERVER=\\\"${UPDATE_SERVER}\\\"")
 set(CSTANDARD "-std=gnu99")
 set(CWARN     "-Wall -Wextra -Wstrict-prototypes -Wshadow -Wdouble-promotion -Wundef -fno-common -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable")
 
@@ -20,7 +20,12 @@ if( BUILD STREQUAL "release")
 
 elseif( BUILD STREQUAL "debug")
 
-    set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL}")
+    if(DEBUG_TO_USART EQUAL 1)
+        set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL} -DDEBUG_TO_USART")
+    else()
+        set(CDEBUG    "-Og -g3 -fanalyzer -DLOG_LEVEL=${LOG_LEVEL}")
+    endif()
+
     set(COPT      "")
 
 endif()
@@ -89,6 +94,7 @@ add_custom_target(flash st-flash write ${PROJECT_NAME}.bin ${Flash_ADDR} && st-f
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC "src/mcu/stm32f107")
+target_include_directories(${PROJECT_NAME} PUBLIC "src/shared")
 target_include_directories(${PROJECT_NAME} PUBLIC "src/mcu/stm32f107/CMSIS/Include")
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")

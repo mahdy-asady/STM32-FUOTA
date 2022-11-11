@@ -33,8 +33,44 @@ void GPIO_DisablePort(GPIO_TypeDef *Port) {
     RCC->APB2ENR &= ~RCC_SelectMask(Port);
 }
 
-void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinDirections PinDirection){
-    Port->CRL = (0x2UL << (PinNumber * 4));
+void GPIO_InitPin(GPIO_TypeDef *Port, PINS PinNumber, PinOperations PinOperation){
+    uint32_t Value;
+    switch (PinOperation)
+    {
+    case PinOperationInputFloating:
+        Value = 0x04;
+        break;
+    case PinOperationInputPullUpDown:
+        Value = 0x08;
+        break;
+    case PinOperationOutputPushPull:
+        Value = 0x03; //50MHZ Output
+        break;
+    case PinOperationOutputOpen:
+        Value = 0x07;
+        break;
+    case PinOperationOutputAlternatePushPull:
+        Value = 0x0B;
+        break;
+    case PinOperationOutputAlternateOpen:
+        Value = 0x0F;
+        break;
+
+    case PinOperationAnalog:
+    default:
+        Value = 0;
+        break;
+    }
+
+    if(PinNumber < PIN_08) {
+        Port->CRL &= ~(0xF << (PinNumber * 4));
+        Port->CRL |= (Value << (PinNumber * 4));
+    } else {
+        PinNumber -= 8;
+        Port->CRH &= ~(0xF << (PinNumber * 4));
+        Port->CRH |= (Value << (PinNumber * 4));
+    }
+    
 }
 
 void GPIO_WritePin(GPIO_TypeDef *Port, PINS PinNumber, PinValues PinValue){
