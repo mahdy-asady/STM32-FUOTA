@@ -199,7 +199,7 @@ bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     while(StartOffset < FileSize) {
         uint8_t ContentSize = ESP_GetFileChunk(FilePath, StartOffset, EndOffset, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
         if(ContentSize == 0)
-            return 0;
+            return false;
 
         char StrOffset[20];
         Num2Str(StartOffset, StrOffset);
@@ -209,5 +209,5 @@ bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
         EndOffset += DOWNLOAD_CHUNK_SIZE;
     }
 
-    return 1;
+    return true;
 }
