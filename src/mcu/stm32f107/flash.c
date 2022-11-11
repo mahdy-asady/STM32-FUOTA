@@ -51,11 +51,16 @@ void WriteHalfWord(uint32_t Address, uint16_t Data) {
 }
 
 bool FlashWrite(uint32_t StartAddress, uint8_t *Data, uint32_t Length) {
-    if(Length % 2) return false;
-
     for(uint32_t i = 0; i < Length; i+=2) {
         WriteHalfWord(StartAddress + i, *(uint16_t *)(Data + i));
         while(FLASH->SR & FLASH_SR_BSY);
     }
+    //we are writeing data in half-word length. so if data Count is odd we have to write a single byte + 0xFFFF
+    if(Length % 2) {
+        uint32_t LastLocation = Length - 1;
+        uint16_t OddValue = *(Data + LastLocation) << 8;
+        WriteHalfWord(StartAddress + LastLocation, OddValue);
+    }
+
     return true;
 }
