@@ -186,10 +186,7 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
     *FileSize = *((uint32_t*)(FileContentBuffer + AddressOffset));
     AddressOffset += 4;
 
-    FileCRC[0] = *((uint8_t*)FileContentBuffer + AddressOffset++);
-    FileCRC[1] = *((uint8_t*)FileContentBuffer + AddressOffset++);
-    FileCRC[2] = *((uint8_t*)FileContentBuffer + AddressOffset++);
-    FileCRC[3] = *((uint8_t*)FileContentBuffer + AddressOffset++);
+    *FileCRC = *((uint32_t*)FileContentBuffer + AddressOffset);
 
     return true;
 }
