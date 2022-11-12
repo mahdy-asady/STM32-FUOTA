@@ -7,9 +7,12 @@
 #include "ESP-AT.h"
 #include "newstring.h"
 #include "debug.h"
+#include "flash.h"
 
 
 extern USART_Handle UsartDebug;
+extern char FLASH_APP1_OFFSET;
+
 
 /*
     update file data structure:
@@ -53,15 +56,22 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
     return true;
 }
 
-bool DoUpdate(char *FilePath, uint32_t FileSize) {
+bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     uint32_t StartOffset = 0;
     uint32_t EndOffset = DOWNLOAD_CHUNK_SIZE - 1;
     uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
    
+   if(!FlashUnlock())
+        return false;
+    
+    FlashErase((uint32_t)&FLASH_APP1_OFFSET, FileSize);
+
     while(StartOffset < FileSize) {
         uint8_t ContentSize = ESP_GetFileChunk(FilePath, StartOffset, EndOffset, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
         if(ContentSize == 0)
             return false;
+
+        FlashWrite((uint32_t)&FLASH_APP1_OFFSET + StartOffset, FileContentBuffer, ContentSize);
 
         char StrOffset[20];
         Num2Str(StartOffset, StrOffset);
@@ -70,7 +80,7 @@ bool DoUpdate(char *FilePath, uint32_t FileSize) {
         StartOffset += DOWNLOAD_CHUNK_SIZE;
         EndOffset += DOWNLOAD_CHUNK_SIZE;
     }
-
+    FlashLock();
     return true;
 }
 
@@ -84,5 +94,5 @@ void FUOTA_Update(void) {
     char BinaryFileName[255];
     StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
     
-    DoUpdate(BinaryFileName, FileSize);
+    DownloadUpdate(BinaryFileName, FileSize);
 }
