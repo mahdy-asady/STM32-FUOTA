@@ -8,6 +8,7 @@
 #include "newstring.h"
 #include "debug.h"
 #include "flash.h"
+#include "crc.h"
 
 
 extern USART_Handle UsartDebug;
@@ -94,5 +95,15 @@ void FUOTA_Update(void) {
     char BinaryFileName[255];
     StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
     
-    DownloadUpdate(BinaryFileName, FileSize);
+    if(!DownloadUpdate(BinaryFileName, FileSize)) {
+        log_error(&UsartDebug, "File download failed!");
+        return;
+    }
+    
+    uint32_t WordCount = FileSize / 4 + ((FileSize % 4) > 0);
+    uint32_t WriteCRC = CRC_Calculate((uint32_t *)&FLASH_APP1_OFFSET, WordCount);
+    
+    if(WriteCRC != FileCRC)
+        log_error(&UsartDebug, "File verification failed!");
+        return;
 }
