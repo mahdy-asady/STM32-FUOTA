@@ -7,7 +7,7 @@
         {
             "name": "ST-LINK Debugger",
             "cwd": "${workspaceFolder}",
-            "executable": "./build/Embedded.elf",
+            "executable": "./build/${config:cmake.configureSettings.PROJECT}.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
