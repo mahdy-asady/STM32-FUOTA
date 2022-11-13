@@ -9,6 +9,8 @@
 #include "debug.h"
 #include "timer.h"
 #include "fuota.h"
+#include "bkpreg.h"
+#include "newstring.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -27,6 +29,19 @@ int main(void) {
     
     log_info(&UsartDebug, "Boot loader Started!");
     
+    BackupRegInit();
+
+    uint16_t Data = BackupRegRead(0);
+    char tmp[20];
+    Num2Str(Data, tmp);
+    log_info(&UsartDebug, tmp);
+
+    BackupRegWrite(0, 0xFAFA);
+    
+    Data = BackupRegRead(0);
+    Num2Str(Data, tmp);
+    log_info(&UsartDebug, tmp);
+
 
     ESP_Init(&UsartWebConn, &UsartDebug);
     ESP_WifiConnect(WIFI_SSID, WIFI_PASS);

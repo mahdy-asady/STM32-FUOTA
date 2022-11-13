@@ -9,6 +9,7 @@ if( MCU STREQUAL "cortex-m3" )
         ../../mcu/stm32f107/flash.c
         ../../mcu/stm32f107/crc.c
         ../../mcu/stm32f107/board.c
+        ../../mcu/stm32f107/bkpreg.c
         ../../shared/fuota.c
         ../../shared/timer.c
         ../../shared/newstring.c
