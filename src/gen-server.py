@@ -2,8 +2,14 @@
 
 from pathlib import Path
 import shutil
-import zlib
 import sys
+
+def crc32mpeg2(buf, crc=0xffffffff):
+    for val in buf:
+        crc ^= val << 24
+        for _ in range(8):
+            crc = crc << 1 if (crc & 0x80000000) == 0 else (crc << 1) ^ 0x104c11db7
+    return crc
 
 
 if len(sys.argv) < 4:
@@ -43,7 +49,16 @@ BinaryData.append(0)
 BinaryData.extend(InputFile.stat().st_size.to_bytes(4, 'little'))
 #=============================================================
 # Calculate CRC32
-CRC = zlib.crc32(InputFile.read_bytes(), 0)
+CRC = 0xffffffff
+with open(InputFile, "rb") as file:
+    while True:
+        buffer = file.read(4)
+        if not buffer:
+            break
+        WordData = bytearray()
+        WordData.extend(buffer)
+        WordData.reverse()
+        CRC = crc32mpeg2(WordData, CRC)
 BinaryData.extend(CRC.to_bytes(4, 'little'))
 #=============================================================
 # Copy binary file to server directory
