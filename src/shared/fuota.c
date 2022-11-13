@@ -30,7 +30,7 @@ extern char FLASH_APP1_OFFSET;
 
 */
 
-bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC) {
+bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint32_t *FileCRC) {
     uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
    
     uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, DOWNLOAD_CHUNK_SIZE - 1, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
@@ -51,7 +51,7 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
     *FileSize = *((uint32_t*)(FileContentBuffer + AddressOffset));
     AddressOffset += 4;
 
-    *FileCRC = *((uint32_t*)FileContentBuffer + AddressOffset);
+    *FileCRC = *((uint32_t*)(FileContentBuffer + AddressOffset));
 
     return true;
 }
@@ -88,8 +88,8 @@ void FUOTA_Update(void) {
     uint32_t    UpdateVersion;
     char        FileName[255];
     uint32_t    FileSize;
-    uint8_t     FileCRC[4];
-    GetUpdateInfo(&UpdateVersion, FileName, &FileSize, FileCRC);
+    uint32_t     FileCRC;
+    GetUpdateInfo(&UpdateVersion, FileName, &FileSize, &FileCRC);
 
     char BinaryFileName[255];
     StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
