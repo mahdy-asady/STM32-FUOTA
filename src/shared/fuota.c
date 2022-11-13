@@ -8,6 +8,7 @@
 #include "newstring.h"
 #include "debug.h"
 #include "flash.h"
+#include "crc.h"
 
 
 extern USART_Handle UsartDebug;
@@ -30,7 +31,7 @@ extern char FLASH_APP1_OFFSET;
 
 */
 
-bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint8_t *FileCRC) {
+bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint32_t *FileCRC) {
     uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
    
     uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, DOWNLOAD_CHUNK_SIZE - 1, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
@@ -51,7 +52,7 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
     *FileSize = *((uint32_t*)(FileContentBuffer + AddressOffset));
     AddressOffset += 4;
 
-    *FileCRC = *((uint32_t*)FileContentBuffer + AddressOffset);
+    *FileCRC = *((uint32_t*)(FileContentBuffer + AddressOffset));
 
     return true;
 }
@@ -88,11 +89,21 @@ void FUOTA_Update(void) {
     uint32_t    UpdateVersion;
     char        FileName[255];
     uint32_t    FileSize;
-    uint8_t     FileCRC[4];
-    GetUpdateInfo(&UpdateVersion, FileName, &FileSize, FileCRC);
+    uint32_t     FileCRC;
+    GetUpdateInfo(&UpdateVersion, FileName, &FileSize, &FileCRC);
 
     char BinaryFileName[255];
     StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
     
-    DownloadUpdate(BinaryFileName, FileSize);
+    if(!DownloadUpdate(BinaryFileName, FileSize)) {
+        log_error(&UsartDebug, "File download failed!");
+        return;
+    }
+    
+    uint32_t WordCount = FileSize / 4 + ((FileSize % 4) > 0);
+    uint32_t WriteCRC = CRC_Calculate((uint32_t *)&FLASH_APP1_OFFSET, WordCount);
+    
+    if(WriteCRC != FileCRC)
+        log_error(&UsartDebug, "File verification failed!");
+        return;
 }
