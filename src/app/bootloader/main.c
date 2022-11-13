@@ -10,6 +10,7 @@
 #include "timer.h"
 #include "fuota.h"
 #include "bkpreg.h"
+#include "bootOptions.h"
 #include "newstring.h"
 
 extern char FLASH_APP1_OFFSET;
@@ -26,31 +27,43 @@ int main(void) {
     ShowBootloaderSign();
 
     UsartInit();
+
+    BackupRegInit();
     
     log_info(&UsartDebug, "Boot loader Started!");
     
-    BackupRegInit();
-
-    uint16_t Data = BackupRegRead(0);
-    char tmp[20];
-    Num2Str(Data, tmp);
-    log_info(&UsartDebug, tmp);
-
-    BackupRegWrite(0, 0xFAFA);
+    uint16_t BootCommand = BackupRegRead(0);
+    switch (BootCommand)
+    {
+    case BOOT_UPDATE:
+        log_info(&UsartDebug, "Do: Update");
+        ESP_Init(&UsartWebConn, &UsartDebug);
+        ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
+        FUOTA_Update();
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
     
-    Data = BackupRegRead(0);
-    Num2Str(Data, tmp);
-    log_info(&UsartDebug, tmp);
-
-
-    ESP_Init(&UsartWebConn, &UsartDebug);
-    ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
-
-    FUOTA_Update();
-
-    log_info(&UsartDebug, "Done!!!");
-
-    //BootApplication();
+    case BOOT_BACKUP:
+        log_info(&UsartDebug, "Do: Backup");
+        /* code */
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
+    
+    case BOOT_RESTORE:
+        log_info(&UsartDebug, "Do: Restore");
+        /* code */
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
+    
+    case BOOT_NORMAL:
+    default:
+        log_info(&UsartDebug, "Do: Normal Boot");
+        BootApplication();
+        break;
+    }
 
     while(1);
 }
