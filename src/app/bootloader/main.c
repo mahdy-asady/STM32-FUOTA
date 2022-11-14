@@ -12,6 +12,7 @@
 #include "bkpreg.h"
 #include "bootOptions.h"
 #include "newstring.h"
+#include "eeprom.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -30,6 +31,8 @@ int main(void) {
 
     BackupRegInit();
     
+    EE_Init();
+
     log_info(&UsartDebug, "Boot loader Started!");
     
     uint16_t BootCommand = BackupRegRead(0);

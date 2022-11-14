@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "flash.h"
 #include "crc.h"
+#include "eeprom.h"
 
 
 extern USART_Handle UsartDebug;
@@ -106,4 +107,7 @@ void FUOTA_Update(void) {
     if(WriteCRC != FileCRC)
         log_error(&UsartDebug, "File verification failed!");
         return;
+    
+    EE_Write(App1Size, FileSize);
+    EE_Write(App1Version, UpdateVersion);
 }

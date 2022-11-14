@@ -15,4 +15,11 @@
 
 #define DOWNLOAD_CHUNK_SIZE 200
 
+enum EEPROM_VARS {
+    App1Size = 0x00000001UL,
+    App1Version,
+    App2Size,
+    App2Version
+};
+
 #endif
