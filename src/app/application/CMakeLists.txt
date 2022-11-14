@@ -5,6 +5,7 @@ set(INC_FILES main.c
     ../../mcu/stm32f107/GPIO.c
     ../../mcu/stm32f107/USART.c
     ../../mcu/stm32f107/timer.c
+    ../../mcu/stm32f107/bkpreg.c
     ../../shared/fifo.c
     ../../mcu/stm32f107/startup_stm32f107xc.s
 )
