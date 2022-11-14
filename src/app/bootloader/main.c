@@ -9,6 +9,9 @@
 #include "debug.h"
 #include "timer.h"
 #include "fuota.h"
+#include "bkpreg.h"
+#include "bootOptions.h"
+#include "newstring.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -24,18 +27,43 @@ int main(void) {
     ShowBootloaderSign();
 
     UsartInit();
+
+    BackupRegInit();
     
     log_info(&UsartDebug, "Boot loader Started!");
     
-
-    ESP_Init(&UsartWebConn, &UsartDebug);
-    ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
-
-    FUOTA_Update();
-
-    log_info(&UsartDebug, "Done!!!");
-
-    //BootApplication();
+    uint16_t BootCommand = BackupRegRead(0);
+    switch (BootCommand)
+    {
+    case BOOT_UPDATE:
+        log_info(&UsartDebug, "Do: Update");
+        ESP_Init(&UsartWebConn, &UsartDebug);
+        ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
+        FUOTA_Update();
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
+    
+    case BOOT_BACKUP:
+        log_info(&UsartDebug, "Do: Backup");
+        /* code */
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
+    
+    case BOOT_RESTORE:
+        log_info(&UsartDebug, "Do: Restore");
+        /* code */
+        BackupRegWrite(0, BOOT_NORMAL);
+        NVIC_SystemReset();
+        break;
+    
+    case BOOT_NORMAL:
+    default:
+        log_info(&UsartDebug, "Do: Normal Boot");
+        BootApplication();
+        break;
+    }
 
     while(1);
 }
