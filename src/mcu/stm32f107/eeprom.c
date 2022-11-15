@@ -11,18 +11,17 @@ extern char FLASH_DATA_OFFSET;
 uint32_t *ActivePage;
 uint32_t *NextFreeSlot;
 
-bool FindAddressLastSlot(uint32_t Address, uint32_t *Slot) {
+uint32_t * FindAddressLastSlot(uint32_t Address) {
     uint32_t *SearchingSlot  = NextFreeSlot - 2;
     while (SearchingSlot > ActivePage)
     {
         if(*SearchingSlot == Address) {
-            Slot = SearchingSlot;
-            return true;
+            return SearchingSlot;
         }
 
         SearchingSlot -= 2;
     }
-    return false;
+    return 0;
 }
 
 void PrepareNextPage(void) {
@@ -35,7 +34,7 @@ void PrepareNextPage(void) {
     //1. write previous variables to this one
     uint32_t *SearchingSlot = OldPage + FLASH_UINT32_COUNT - 2;
     while(SearchingSlot > OldPage) {
-        if(!FindAddressLastSlot(*SearchingSlot, (void *)0))
+        if(!FindAddressLastSlot(*SearchingSlot))
             EE_Write(*SearchingSlot, *(SearchingSlot + 1));
         SearchingSlot -= 2;
     }
@@ -68,8 +67,10 @@ void EE_Write(uint32_t Address, uint32_t Value) {
 }
 
 uint32_t EE_Read(uint32_t Address, uint32_t DefaultValue) {
-    uint32_t *SearchingSlot = 0;
-    if(FindAddressLastSlot(Address, SearchingSlot))
+    uint32_t *SearchingSlot = FindAddressLastSlot(Address);
+    if(SearchingSlot) {
         return *(SearchingSlot + 1);
+    }
+        
     return DefaultValue;
 }
