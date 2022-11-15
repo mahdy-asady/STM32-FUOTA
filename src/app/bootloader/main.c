@@ -49,14 +49,18 @@ int main(void) {
     
     case BOOT_BACKUP:
         log_info(&UsartDebug, "Do: Backup");
-        /* code */
+
+        FUOTA_Backup();
+        
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
         break;
     
     case BOOT_RESTORE:
         log_info(&UsartDebug, "Do: Restore");
-        /* code */
+        
+        FUOTA_Restore();
+
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
         break;
