@@ -42,7 +42,7 @@ int main(void) {
         log_info(&UsartDebug, "Do: Update");
         ESP_Init(&UsartWebConn, &UsartDebug);
         ESP_WifiConnect(WIFI_SSID, WIFI_PASS);
-        FUOTA_Update();
+        fuotaUpdate();
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
         break;
@@ -50,7 +50,7 @@ int main(void) {
     case BOOT_BACKUP:
         log_info(&UsartDebug, "Do: Backup");
 
-        FUOTA_Backup();
+        fuotaBackup();
         
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
@@ -59,7 +59,7 @@ int main(void) {
     case BOOT_RESTORE:
         log_info(&UsartDebug, "Do: Restore");
         
-        FUOTA_Restore();
+        fuotaRestore();
 
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();

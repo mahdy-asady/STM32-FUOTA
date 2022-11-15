@@ -87,7 +87,7 @@ bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     return true;
 }
 
-void FUOTA_Update(void) {
+void fuotaUpdate(void) {
     uint32_t    UpdateVersion;
     char        FileName[255];
     uint32_t    FileSize;
@@ -124,7 +124,7 @@ void FlashCopy(uint8_t *SrcAddress, uint32_t DstAddress, uint32_t Length) {
     FlashLock();
 }
 
-void FUOTA_Backup(void) {
+void fuotaBackup(void) {
     uint32_t FileSize = EE_Read(App1Size, 0), 
              FileVersion = EE_Read(App1Version, 0);
 
@@ -134,7 +134,7 @@ void FUOTA_Backup(void) {
     EE_Write(App2Version, FileVersion);
 }
 
-void FUOTA_Restore(void) {
+void fuotaRestore(void) {
     uint32_t FileSize = EE_Read(App2Size, 0), 
              FileVersion = EE_Read(App2Version, 0);
 

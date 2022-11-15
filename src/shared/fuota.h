@@ -1,10 +1,10 @@
 #ifndef _FUOTA_H_
 #define _FUOTA_H_
 
-void FUOTA_Update(void);
+void fuotaUpdate(void);
 
-void FUOTA_Backup(void);
+void fuotaBackup(void);
 
-void FUOTA_Restore(void);
+void fuotaRestore(void);
 
 #endif
