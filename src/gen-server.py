@@ -59,6 +59,8 @@ with open(InputFile, "rb") as file:
         WordData.extend(buffer)
         WordData.reverse()
         CRC = crc32mpeg2(WordData, CRC)
+
+print("Generated CRC: " + hex(CRC).upper())
 BinaryData.extend(CRC.to_bytes(4, 'little'))
 #=============================================================
 # Copy binary file to server directory
