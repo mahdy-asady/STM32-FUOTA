@@ -106,7 +106,18 @@ void fuotaUpdate(void) {
     uint32_t WriteCRC = CRC_Calculate((uint32_t *)&FLASH_APP1_OFFSET, WordCount);
     
     if(WriteCRC != FileCRC) {
+        char Number[20];
+
         log_error(&UsartDebug, "File verification failed!");
+        
+        log_info(&UsartDebug, "Server CRC:");
+        Num2Str(FileCRC, Number);
+        log_info(&UsartDebug, Number);
+
+        log_info(&UsartDebug, "Micro CRC:");
+        Num2Str(WriteCRC, Number);
+        log_info(&UsartDebug, Number);
+
         return;
     }
     
