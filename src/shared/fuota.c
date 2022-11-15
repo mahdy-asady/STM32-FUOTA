@@ -99,6 +99,10 @@ void fuotaUpdate(void) {
     
     if(!DownloadUpdate(BinaryFileName, FileSize)) {
         log_error(&UsartDebug, "File download failed!");
+
+        log_error(&UsartDebug, "Restoring Backup!");
+        fuotaRestore();
+        
         return;
     }
     
