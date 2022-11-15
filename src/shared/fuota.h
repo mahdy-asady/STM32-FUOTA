@@ -3,4 +3,8 @@
 
 void FUOTA_Update(void);
 
+void FUOTA_Backup(void);
+
+void FUOTA_Restore(void);
+
 #endif

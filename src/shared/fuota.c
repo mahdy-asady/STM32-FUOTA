@@ -9,10 +9,12 @@
 #include "debug.h"
 #include "flash.h"
 #include "crc.h"
+#include "eeprom.h"
 
 
 extern USART_Handle UsartDebug;
-extern char FLASH_APP1_OFFSET;
+extern uint8_t FLASH_APP1_OFFSET;
+extern uint8_t FLASH_APP2_OFFSET;
 
 
 /*
@@ -106,4 +108,38 @@ void FUOTA_Update(void) {
     if(WriteCRC != FileCRC)
         log_error(&UsartDebug, "File verification failed!");
         return;
+    
+    EE_Write(App1Size, FileSize);
+    EE_Write(App1Version, UpdateVersion);
+}
+
+void FlashCopy(uint8_t *SrcAddress, uint32_t DstAddress, uint32_t Length) {
+    if(!FlashUnlock()) {
+        return;
+    }
+
+    FlashErase(DstAddress, Length);
+    FlashWrite(DstAddress, SrcAddress, Length);
+
+    FlashLock();
+}
+
+void FUOTA_Backup(void) {
+    uint32_t FileSize = EE_Read(App1Size, 0), 
+             FileVersion = EE_Read(App1Version, 0);
+
+    FlashCopy(&FLASH_APP1_OFFSET, (uint32_t)&FLASH_APP2_OFFSET, FileSize);
+    
+    EE_Write(App2Size, FileSize);
+    EE_Write(App2Version, FileVersion);
+}
+
+void FUOTA_Restore(void) {
+    uint32_t FileSize = EE_Read(App2Size, 0), 
+             FileVersion = EE_Read(App2Version, 0);
+
+    FlashCopy(&FLASH_APP2_OFFSET, (uint32_t)&FLASH_APP1_OFFSET, FileSize);
+
+    EE_Write(App1Size, FileSize);
+    EE_Write(App1Version, FileVersion);
 }

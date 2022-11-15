@@ -12,6 +12,7 @@
 #include "bkpreg.h"
 #include "bootOptions.h"
 #include "newstring.h"
+#include "eeprom.h"
 
 extern char FLASH_APP1_OFFSET;
 
@@ -30,6 +31,8 @@ int main(void) {
 
     BackupRegInit();
     
+    EE_Init();
+
     log_info(&UsartDebug, "Boot loader Started!");
     
     uint16_t BootCommand = BackupRegRead(0);
@@ -46,14 +49,18 @@ int main(void) {
     
     case BOOT_BACKUP:
         log_info(&UsartDebug, "Do: Backup");
-        /* code */
+
+        FUOTA_Backup();
+        
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
         break;
     
     case BOOT_RESTORE:
         log_info(&UsartDebug, "Do: Restore");
-        /* code */
+        
+        FUOTA_Restore();
+
         BackupRegWrite(0, BOOT_NORMAL);
         NVIC_SystemReset();
         break;

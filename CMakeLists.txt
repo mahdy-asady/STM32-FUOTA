@@ -37,7 +37,7 @@ if(PROJECT STREQUAL "bootloader")
 
 else()
     set( LINKER_SCRIPT "STM32F107VCTx_FLASH_APPLICATION.ld")
-    set( Flash_ADDR "0x8001800" )
+    set( Flash_ADDR "0x8003800" )
 
 endif()
 
