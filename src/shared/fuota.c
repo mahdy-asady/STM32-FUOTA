@@ -118,6 +118,9 @@ void fuotaUpdate(void) {
         Num2Str(WriteCRC, Number);
         log_info(&UsartDebug, Number);
 
+        log_error(&UsartDebug, "Restoring Backup!");
+        fuotaRestore();
+
         return;
     }
     
