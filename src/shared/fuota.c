@@ -99,6 +99,10 @@ void fuotaUpdate(void) {
     
     if(!DownloadUpdate(BinaryFileName, FileSize)) {
         log_error(&UsartDebug, "File download failed!");
+
+        log_error(&UsartDebug, "Restoring Backup!");
+        fuotaRestore();
+        
         return;
     }
     
@@ -117,6 +121,9 @@ void fuotaUpdate(void) {
         log_info(&UsartDebug, "Micro CRC:");
         Num2Str(WriteCRC, Number);
         log_info(&UsartDebug, Number);
+
+        log_error(&UsartDebug, "Restoring Backup!");
+        fuotaRestore();
 
         return;
     }
