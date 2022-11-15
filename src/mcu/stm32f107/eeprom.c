@@ -19,6 +19,8 @@ bool FindAddressLastSlot(uint32_t Address, uint32_t *Slot) {
             Slot = SearchingSlot;
             return true;
         }
+
+        SearchingSlot -= 2;
     }
     return false;
 }
