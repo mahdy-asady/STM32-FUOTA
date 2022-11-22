@@ -69,7 +69,7 @@ bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     uint8_t DownloadContentBuffer[DOWNLOAD_CHUNK_SIZE],
             DecryptedContentBuffer[DOWNLOAD_CHUNK_SIZE];
 
-    uint8_t Key[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+    uint8_t Key[16] = { 0x27, 0x94, 0x36, 0x00, 0x78, 0x00, 0x00, 0x00, 
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     struct NESSIEstruct KeyStruct;
     NESSIEkeysetup (Key, &KeyStruct);

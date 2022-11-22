@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 import sys
+import Noekeon
 
 def crc32mpeg2(buf, crc=0xffffffff):
     for val in buf:
@@ -64,7 +65,18 @@ print("Generated CRC: " + hex(CRC).upper())
 BinaryData.extend(CRC.to_bytes(4, 'little'))
 #=============================================================
 # Copy binary file to server directory
-shutil.copy(InputFile, ServerDir)
+Key = Noekeon.KeySetup(b'\x27\x94\x36\x00\x78\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+
+with open(InputFile, "rb") as SourceFile, open(ServerDir / InputFile.name, 'wb') as DestinationFile:
+    while True:
+        buffer = SourceFile.read(16)
+        if not buffer:
+            break
+        if(len(buffer) != 16): 
+            buffer = buffer + b'\0' * (16 - len(buffer))
+        Data = Noekeon.Encrypt(Key, buffer)
+        DestinationFile.write(Data)
+
 # Create update file
 UpdateFile = Path(ServerDir / "update")
 UpdateFile.write_bytes(BinaryData)
