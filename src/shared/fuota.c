@@ -118,6 +118,11 @@ void fuotaUpdate(void) {
     uint32_t     FileCRC;
     GetUpdateInfo(&UpdateVersion, FileName, &FileSize, &FileCRC);
 
+    if(EE_Read(App1Version, 0) >= UpdateVersion) {
+        log_error(&UsartDebug, "Current Version is newer than downloading version. Aborting!");
+        return;
+    }
+
     char BinaryFileName[255];
     StrConcat(BinaryFileName, 255, 3, UPDATE_SERVER, "/", FileName);
     
