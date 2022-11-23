@@ -11,9 +11,14 @@
 
 #define HTTP_TIMEOUT 5000
 
+#define HTTP_DOWNLOAD_RETRY_MAX 5
+
+#define HTTP_RETRY_WAIT_TIME 3000
+
 #define RESPONSE_LINE_BUFFER_LENGTH 100
 
-#define DOWNLOAD_CHUNK_SIZE 200
+/* We use Noekeon as cipher and its block length is 128 bit(16 bytes). So downloaded chunks should be dividable by 16 */
+#define DOWNLOAD_CHUNK_SIZE 128
 
 enum EEPROM_VARS {
     App1Size = 0x00000001UL,

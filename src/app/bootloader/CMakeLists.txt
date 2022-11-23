@@ -17,6 +17,7 @@ if( MCU STREQUAL "cortex-m3" )
         ../../shared/ESP-AT.c
         ../../shared/fifo.c
         ../../mcu/stm32f107/startup_stm32f107xc.s
+        ../../shared/Noekeon/Noekeon.c
     )
 endif()
 

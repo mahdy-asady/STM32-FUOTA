@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "fuota.h"
 #include "config.h"
 #include "USART.h"
 #include "ESP-AT.h"
@@ -10,6 +11,10 @@
 #include "flash.h"
 #include "crc.h"
 #include "eeprom.h"
+#include "timer.h"
+
+#include "Noekeon/NessieInterfaces.h"
+#include "Noekeon/Nessie.h"
 
 
 extern USART_Handle UsartDebug;
@@ -62,7 +67,13 @@ bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, ui
 bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     uint32_t StartOffset = 0;
     uint32_t EndOffset = DOWNLOAD_CHUNK_SIZE - 1;
-    uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
+    uint8_t DownloadContentBuffer[DOWNLOAD_CHUNK_SIZE],
+            DecryptedContentBuffer[DOWNLOAD_CHUNK_SIZE];
+
+    uint8_t Key[16] = { 0x27, 0x94, 0x36, 0x00, 0x78, 0x00, 0x00, 0x00, 
+                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    struct NESSIEstruct KeyStruct;
+    NESSIEkeysetup (Key, &KeyStruct);
    
    if(!FlashUnlock())
         return false;
@@ -70,11 +81,24 @@ bool DownloadUpdate(char *FilePath, uint32_t FileSize) {
     FlashErase((uint32_t)&FLASH_APP1_OFFSET, FileSize);
 
     while(StartOffset < FileSize) {
-        uint8_t ContentSize = ESP_GetFileChunk(FilePath, StartOffset, EndOffset, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
-        if(ContentSize == 0)
-            return false;
+        uint8_t Retry = 0;
+        uint8_t ContentSize;
+        do{
+            ContentSize = ESP_GetFileChunk(FilePath, StartOffset, EndOffset, DownloadContentBuffer, DOWNLOAD_CHUNK_SIZE);
+            if(!ContentSize) {
+                if(++Retry > HTTP_DOWNLOAD_RETRY_MAX)
+                    return false;
+                Delay_ms(HTTP_RETRY_WAIT_TIME);
+            }
+        } while (ContentSize == 0);
 
-        FlashWrite((uint32_t)&FLASH_APP1_OFFSET + StartOffset, FileContentBuffer, ContentSize);
+        for(uint32_t i = 0; i < DOWNLOAD_CHUNK_SIZE / 16; i++) {
+            uint32_t Gap = i * 16;
+            NESSIEdecrypt (&KeyStruct, DownloadContentBuffer + Gap, DecryptedContentBuffer + Gap);
+        }
+        
+
+        FlashWrite((uint32_t)&FLASH_APP1_OFFSET + StartOffset, DecryptedContentBuffer, ContentSize);
 
         char StrOffset[20];
         Num2Str(StartOffset, StrOffset);

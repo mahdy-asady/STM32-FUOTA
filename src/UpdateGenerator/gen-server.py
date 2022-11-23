@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 import sys
+import Noekeon
 
 def crc32mpeg2(buf, crc=0xffffffff):
     for val in buf:
@@ -45,26 +46,37 @@ BinaryData.append(0)
 BinaryData.append(len(InputFile.name))
 BinaryData.extend(InputFile.name.encode('latin-1'))
 BinaryData.append(0)
-# Write file size
-BinaryData.extend(InputFile.stat().st_size.to_bytes(4, 'little'))
 #=============================================================
 # Calculate CRC32
 CRC = 0xffffffff
-with open(InputFile, "rb") as file:
+
+# Create encrypted binary file in server directory
+Key = Noekeon.KeySetup(b'\x27\x94\x36\x00\x78\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+
+#Store file size
+FileBlocks = 0
+
+with open(InputFile, "rb") as SourceFile, open(ServerDir / InputFile.name, 'wb') as DestinationFile:
     while True:
-        buffer = file.read(4)
+        buffer = SourceFile.read(16)
         if not buffer:
             break
-        WordData = bytearray()
-        WordData.extend(buffer)
-        WordData.reverse()
-        CRC = crc32mpeg2(WordData, CRC)
+        FileBlocks += 1
+        if(len(buffer) != 16): 
+            buffer = buffer + b'\0' * (16 - len(buffer))
+        for i in range(4):
+            WordData = bytearray(buffer[i * 4 : i * 4 + 4])
+            WordData.reverse()
+            CRC = crc32mpeg2(WordData, CRC)
+        Data = Noekeon.Encrypt(Key, buffer)
+        DestinationFile.write(Data)
 
-print("Generated CRC: " + hex(CRC).upper())
+# Write file size
+BinaryData.extend((FileBlocks * 16).to_bytes(4, 'little'))
+# Write File CRC
+print("Generated CRC:", hex(CRC))
 BinaryData.extend(CRC.to_bytes(4, 'little'))
-#=============================================================
-# Copy binary file to server directory
-shutil.copy(InputFile, ServerDir)
+
 # Create update file
 UpdateFile = Path(ServerDir / "update")
 UpdateFile.write_bytes(BinaryData)
