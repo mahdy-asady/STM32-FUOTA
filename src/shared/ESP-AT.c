@@ -58,6 +58,7 @@ int ESP_WifiConnect(char *SSID, char *Password) {
 
 //fetches the range, puts to buffer, return the length
 uint8_t ESP_GetFileChunk(char *URI, uint32_t StartByte, uint32_t EndByte, uint8_t *Buffer, uint32_t MaxLength) {
+    log_info(Echo, URI);
     if((EndByte - StartByte + 1) > MaxLength)
         return 0;
     
