@@ -14,6 +14,7 @@
 #include "timer.h"
 #include "newstring.h"
 #include "devId.h"
+#include "bootOptions.h"
 
 #include "Noekeon/NessieInterfaces.h"
 #include "Noekeon/Nessie.h"
@@ -23,6 +24,22 @@ extern USART_Handle UsartDebug;
 extern uint8_t FLASH_APP1_OFFSET;
 extern uint8_t FLASH_APP2_OFFSET;
 
+
+void SendReport(enum bootOptions Op, bool Result) {
+    char DeviceID[33],
+         URI[100],
+         StrOp[2],
+         StrResult[2];
+
+    uint8_t TmpBuffer[10];
+
+    Num2Str(Op, StrOp);
+    Num2Str(Result, StrResult);
+    devIdGet(DeviceID);
+    StrConcat(URI, 100, 6, UPDATE_SERVER "/report?devId=", DeviceID, "&op=", StrOp, "&result=", StrResult);
+   
+    uint8_t ContentSize = ESP_GetFileChunk(URI, 0, 9, TmpBuffer, 10);
+}
 
 /*
     update file data structure:
@@ -138,6 +155,8 @@ void fuotaUpdate(void) {
 
         log_error(&UsartDebug, "Restoring Backup!");
         fuotaRestore();
+
+        SendReport(BOOT_UPDATE, false);
         
         return;
     }
@@ -161,11 +180,15 @@ void fuotaUpdate(void) {
         log_error(&UsartDebug, "Restoring Backup!");
         fuotaRestore();
 
+        SendReport(BOOT_UPDATE, false);
+
         return;
     }
     
     EE_Write(App1Size, FileSize);
     EE_Write(App1Version, UpdateVersion);
+
+    SendReport(BOOT_UPDATE, true);
 }
 
 void FlashCopy(uint8_t *SrcAddress, uint32_t DstAddress, uint32_t Length) {
@@ -187,6 +210,8 @@ void fuotaBackup(void) {
     
     EE_Write(App2Size, FileSize);
     EE_Write(App2Version, FileVersion);
+
+    SendReport(BOOT_BACKUP, true);
 }
 
 void fuotaRestore(void) {
@@ -197,4 +222,6 @@ void fuotaRestore(void) {
 
     EE_Write(App1Size, FileSize);
     EE_Write(App1Version, FileVersion);
+
+    SendReport(BOOT_RESTORE, true);
 }
