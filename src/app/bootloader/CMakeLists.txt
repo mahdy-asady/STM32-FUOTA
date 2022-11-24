@@ -12,6 +12,7 @@ if( MCU STREQUAL "cortex-m3" )
         ../../mcu/stm32f107/crc.c
         ../../mcu/stm32f107/board.c
         ../../mcu/stm32f107/bkpreg.c
+        ../../mcu/stm32f107/devId.c
         ../../shared/fuota.c
         ../../shared/newstring.c
         ../../shared/ESP-AT.c
