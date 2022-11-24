@@ -12,6 +12,8 @@
 #include "crc.h"
 #include "eeprom.h"
 #include "timer.h"
+#include "newstring.h"
+#include "devId.h"
 
 #include "Noekeon/NessieInterfaces.h"
 #include "Noekeon/Nessie.h"
@@ -40,8 +42,13 @@ extern uint8_t FLASH_APP2_OFFSET;
 
 bool GetUpdateInfo(uint32_t *FileVersion, char *FileName, uint32_t *FileSize, uint32_t *FileCRC) {
     uint8_t FileContentBuffer[DOWNLOAD_CHUNK_SIZE];
+    char DeviceID[33];
+    char URI[100];
+
+    devIdGet(DeviceID);
+    StrConcat(URI, 100, 2, UPDATE_SERVER "/update?devId=", DeviceID);
    
-    uint8_t ContentSize = ESP_GetFileChunk(UPDATE_SERVER "/update", 0, DOWNLOAD_CHUNK_SIZE - 1, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
+    uint8_t ContentSize = ESP_GetFileChunk(URI, 0, DOWNLOAD_CHUNK_SIZE - 1, FileContentBuffer, DOWNLOAD_CHUNK_SIZE);
     if(!ContentSize)
         return false;
     
